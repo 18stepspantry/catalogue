@@ -14,7 +14,7 @@ for(let i=2;i<lines.length;i++){
 
 let cols=lines[i].split(",");
 
-if(cols.length<2) continue;
+if(cols.length < 2 || cols.join("").trim() === "") continue;
 
 let product=cols[0].trim();
 
@@ -44,7 +44,7 @@ html+=`
 
 <td>${size}</td>
 
-<td>$${price}</td>
+<td>${price}</td>
 
 <td>${stock}</td>
 
