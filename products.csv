@@ -2,7 +2,7 @@
 Product name,Pack size,Stock status
 RICE,,
 Thulasi Thanjavur Mappillai Samba Rice,1 Kg,In Stock
-Thulasi Thanjavur Black rice (karuppu kavuni),5 Kg,In Stock
+Thulasi Thanjavur Black rice (Karuppu kavuni),5 Kg,In Stock
 Thulasi Thanjavur Idly Rice,5 Kg,In Stock
 Thulasi Thanjavur Seeraga Samba Rice,5 Kg,In Stock
 Thualsi Manachanallur Ponni Boiled Rice,1 Kg,In Stock
@@ -16,7 +16,7 @@ Thulasi Finger Millet (Kezhvaraghu),1 Kg,In Stock
 Thulasi Pearl Millet (Kambu),1 Kg,In Stock
 Thulasi Barnyard Millet (Kuthiraivali),1 Kg,In Stock
 Thulasi Little Millet (Saamai),1 Kg,In Stock
-Thulasi Kodo Millet (varaghu),1 Kg,In Stock
+Thulasi Kodo Millet (Varaghu),1 Kg,In Stock
 Thulasi Proso Millet,1 Kg,In Stock
 Thulasi Sorghum Millet,1 Kg,In Stock
 Thulasi Foxtail Millet (Thinai),500g,In Stock
@@ -77,23 +77,7 @@ Thulasi Chekku Sesame Oil,1L,In Stock
 Thulasi Chekku Sesame Oil,5L,In Stock
 Thulasi Ghee,1L,In Stock
 ,,
-888 COOL DRINKS,,
-888 Nannari Sarbath,750 ml,In Stock
-,,
-SNACKS and SWEETS,,
-Grand Chettinadu Manapparai Kai Murukku,125g,In Stock
-Grand Chettinadu Ragi Kara Thattai,125g,In Stock
-Grand Chettinadu Dhaniyam Mixture,125g,In Stock
-Mysore Pak,150g,In Stock
-Jaggery Mysoorpak,150g,In Stock
-Kovil Patty Peanut Chikki Bites,150g,In Stock
-Kovil Patty Black sesame Ball,150g,In Stock
-Palm Jaggery Peanut Candy,150g,In Stock
-Adhirasam,180g,In Stock
-Tirunelveli Halwa,150g,In Stock
-Sugar Balls - 90g X 24,90g,In Stock
-,,
-POWDERS,,
+MASALA POWDERS,,
 Madurai Muniyandi Vilas Fish Fry Masala,165g,In Stock
 Madurai Muniyandi Vilas Mutton Masala,165g,In Stock
 Madurai Muniyandi Vilas Chicken Masala,165g,In Stock
@@ -108,3 +92,19 @@ VERMICELLI,,
 Thulasi Ragi Vermicelli,180g,In Stock
 Thulasi Rice Vermicelli,180g,In Stock
 Thulasi Wheat Vermicelli,180g,In Stock
+,,
+COOL DRINKS,,
+888 Nannari Sarbath,750 ml,In Stock
+,,
+SNACKS and SWEETS,,
+Grand Chettinadu Manapparai Kai Murukku,125g,In Stock
+Grand Chettinadu Ragi Kara Thattai,125g,In Stock
+Grand Chettinadu Dhaniyam Mixture,125g,In Stock
+Mysore Pak,150g,In Stock
+Jaggery Mysoorpak,150g,In Stock
+Kovil Patty Peanut Chikki Bites,150g,In Stock
+Kovil Patty Black sesame Ball,150g,In Stock
+Palm Jaggery Peanut Candy,150g,In Stock
+Adhirasam,180g,In Stock
+Tirunelveli Halwa,150g,In Stock
+Sugar Balls - 90g X 24,90g,In Stock
