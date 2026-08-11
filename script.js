@@ -1,20 +1,11 @@
 fetch("products.csv")
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Could not load products.csv (${response.status})`);
-    }
-
-    return response.text();
-  })
-
+  .then(response => response.text())
   .then(text => {
+
     const tbody = document.querySelector("#catalogue tbody");
     const searchBox = document.getElementById("search");
 
-    // ------------------------------
-    // CSV PARSER
-    // Supports quoted commas and escaped quotes.
-    // ------------------------------
+    // ---------- CSV PARSER ----------
     function parseCSV(csv) {
       const rows = [];
       let row = [];
@@ -22,61 +13,38 @@ fetch("products.csv")
       let inQuotes = false;
 
       for (let i = 0; i < csv.length; i++) {
-        const character = csv[i];
+        const c = csv[i];
 
-        // Handle quotation marks.
-        if (character === '"') {
-          // Two quotation marks inside a quoted field = one quotation mark.
+        if (c === '"') {
           if (inQuotes && csv[i + 1] === '"') {
             field += '"';
             i++;
           } else {
             inQuotes = !inQuotes;
           }
-
-          continue;
-        }
-
-        // A comma ends a field when outside quotation marks.
-        if (character === "," && !inQuotes) {
+        } else if (c === "," && !inQuotes) {
           row.push(field.trim());
           field = "";
-          continue;
-        }
+        } else if ((c === "\n" || c === "\r") && !inQuotes) {
 
-        // A line break ends a row when outside quotation marks.
-        if (
-          (character === "\n" || character === "\r") &&
-          !inQuotes
-        ) {
-          // Treat Windows line endings (\r\n) as one line break.
-          if (
-            character === "\r" &&
-            csv[i + 1] === "\n"
-          ) {
-            i++;
-          }
+          if (c === "\r" && csv[i + 1] === "\n") i++;
 
           row.push(field.trim());
           field = "";
 
-          // Ignore completely blank rows.
-          if (row.some(cell => cell !== "")) {
+          if (row.some(col => col !== "")) {
             rows.push(row);
           }
 
           row = [];
-          continue;
+        } else {
+          field += c;
         }
-
-        field += character;
       }
 
-      // Add the final row if the file does not end with a line break.
-      if (field.length > 0 || row.length > 0) {
+      if (field.length || row.length) {
         row.push(field.trim());
-
-        if (row.some(cell => cell !== "")) {
+        if (row.some(col => col !== "")) {
           rows.push(row);
         }
       }
@@ -84,157 +52,121 @@ fetch("products.csv")
       return rows;
     }
 
-    // ------------------------------
-    // SAFELY DISPLAY CSV TEXT
-    // Prevents product names containing HTML
-    // from being interpreted as webpage code.
-    // ------------------------------
-    function escapeHTML(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
     const rows = parseCSV(text);
 
     let html = "";
+    let currentCategory = "";
 
-    rows.forEach(columns => {
-      const product = (columns[0] || "").trim();
-      const packSize = (columns[1] || "").trim();
-      const status = (columns[2] || "").trim();
+    rows.forEach(cols => {
 
-      const productLower = product.toLowerCase();
+      const product = (cols[0] || "").trim();
+      const size = (cols[1] || "").trim();
+      let price = (cols[2] || "").trim();
+      const stock = (cols[3] || "").trim();
 
-      // ------------------------------
-      // IGNORE TITLE AND HEADER ROWS
-      // ------------------------------
+      // Ignore title row
       if (
-        productLower.includes("18 steps") ||
-        productLower === "product" ||
-        productLower === "product name"
+        product.toUpperCase().includes("18 STEPS") ||
+        product.toLowerCase() === "product name"
       ) {
         return;
       }
 
-      // ------------------------------
-      // CATEGORY ROW
-      // A category has text only in column 1.
-      // ------------------------------
+      // Category row
       if (
-        product !== "" &&
-        packSize === "" &&
-        status === ""
+        product &&
+        !size &&
+        !price &&
+        !stock
       ) {
+
+        currentCategory = product;
+
         html += `
-          <tr class="category">
-            <td colspan="3">${escapeHTML(product)}</td>
-          </tr>
-        `;
+<tr class="category">
+    <td colspan="4">${currentCategory}</td>
+</tr>
+`;
 
         return;
       }
 
-      // ------------------------------
-      // IGNORE BLANK OR INVALID ROWS
-      // A real product needs at least a product name
-      // and one other piece of information.
-      // ------------------------------
-      if (
-        product === "" ||
-        (packSize === "" && status === "")
-      ) {
-        return;
+      // Ignore footer / junk rows
+      if (!product) return;
+
+      // Prevent double $
+      if (price.startsWith("$$")) {
+        while (price.startsWith("$$")) {
+          price = price.substring(1);
+        }
       }
 
-      // ------------------------------
-      // PRODUCT ROW
-      // Three columns:
-      // Product | Pack Size | Status
-      // ------------------------------
       html += `
-        <tr class="product-row">
-          <td class="product-name">${escapeHTML(product)}</td>
-          <td>${escapeHTML(packSize)}</td>
-          <td>${escapeHTML(status)}</td>
-        </tr>
-      `;
+<tr class="product-row">
+    <td class="product-name">${product}</td>
+    <td>${size}</td>
+    <td>${price}</td>
+    <td>${stock}</td>
+</tr>
+`;
+
     });
 
     tbody.innerHTML = html;
 
-    // ------------------------------
-    // SEARCH
-    // Searches PRODUCT NAMES ONLY.
-    // Category names are not searched.
-    // Categories with no matching products
-    // are hidden automatically.
-    // ------------------------------
-    if (searchBox) {
-      searchBox.addEventListener("input", function () {
-        const searchTerm = this.value
-          .trim()
-          .toLowerCase();
+    // ---------- SEARCH ----------
+    searchBox.addEventListener("input", function () {
 
-        const tableRows = [
-          ...tbody.querySelectorAll("tr")
-        ];
+      const filter = this.value.trim().toLowerCase();
 
-        let activeCategory = null;
-        let categoryHasMatch = false;
+      const allRows = [...tbody.querySelectorAll("tr")];
 
-        tableRows.forEach(row => {
-          // When a new category starts, finish checking
-          // the previous category.
-          if (row.classList.contains("category")) {
-            if (activeCategory) {
-              activeCategory.style.display =
-                categoryHasMatch ? "" : "none";
-            }
+      let currentCategory = null;
+      let categoryHasVisibleProducts = false;
 
-            activeCategory = row;
-            categoryHasMatch = false;
+      allRows.forEach(row => {
 
-            return;
+        if (row.classList.contains("category")) {
+
+          if (currentCategory) {
+            currentCategory.style.display =
+              categoryHasVisibleProducts ? "" : "none";
           }
 
-          const productName =
-            row.querySelector(".product-name")
-              ?.textContent
-              .toLowerCase() || "";
+          currentCategory = row;
+          categoryHasVisibleProducts = false;
+          row.style.display = "";
 
-          const matches =
-            searchTerm === "" ||
-            productName.includes(searchTerm);
-
-          row.style.display =
-            matches ? "" : "none";
-
-          if (matches) {
-            categoryHasMatch = true;
-          }
-        });
-
-        // Check the final category after the loop.
-        if (activeCategory) {
-          activeCategory.style.display =
-            categoryHasMatch ? "" : "none";
+          return;
         }
+
+        const product =
+          row.querySelector(".product-name")
+             .textContent
+             .toLowerCase();
+
+        const visible =
+          filter === "" || product.includes(filter);
+
+        row.style.display = visible ? "" : "none";
+
+        if (visible) {
+          categoryHasVisibleProducts = true;
+        }
+
       });
-    }
+
+      if (currentCategory) {
+        currentCategory.style.display =
+          categoryHasVisibleProducts ? "" : "none";
+      }
+
+    });
+
   })
+  .catch(err => {
+    console.error(err);
 
-  .catch(error => {
-    console.error("Catalogue error:", error);
-
-    document.querySelector("#catalogue tbody").innerHTML = `
-      <tr>
-        <td colspan="3">
-          Unable to load the catalogue.
-        </td>
-      </tr>
-    `;
+    document.querySelector("#catalogue tbody").innerHTML =
+      `<tr><td colspan="4">Unable to load catalogue.</td></tr>`;
   });
