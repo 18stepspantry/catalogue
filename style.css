@@ -1,85 +1,156 @@
+/* ===========================
+   18 Steps Pantry & Spices
+   Catalogue Styles
+=========================== */
+
 body{
-
-font-family:Arial,Helvetica,sans-serif;
-background:#f7f7f7;
-margin:0;
-
+    margin:0;
+    padding:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f5f5f0;
+    color:#333;
 }
 
 .container{
-
-max-width:1100px;
-
-margin:auto;
-
-padding:30px;
-
+    max-width:1100px;
+    margin:0 auto;
+    padding:25px;
 }
 
-h1{
+/* ---------- Logo ---------- */
 
-color:#1b5e20;
-
-margin-bottom:5px;
-
+.logo{
+    display:block;
+    width:220px;
+    max-width:90%;
+    margin:10px auto;
 }
+
+/* ---------- Heading ---------- */
 
 .subtitle{
-
-color:#666;
-
-margin-bottom:20px;
-
+    text-align:center;
+    font-size:28px;
+    font-weight:600;
+    color:#1b5e20;
+    margin:5px 0 30px;
 }
+
+/* ---------- Search ---------- */
 
 #search{
+    width:100%;
+    padding:14px;
+    margin-bottom:25px;
+    box-sizing:border-box;
 
-width:100%;
+    font-size:16px;
 
-padding:12px;
+    border:1px solid #ccc;
+    border-radius:6px;
 
-font-size:16px;
-
-margin-bottom:20px;
-
+    outline:none;
+    transition:.2s;
 }
+
+#search:focus{
+    border-color:#1b5e20;
+    box-shadow:0 0 5px rgba(27,94,32,.25);
+}
+
+/* ---------- Table ---------- */
 
 table{
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
 
-width:100%;
+    border-radius:8px;
+    overflow:hidden;
 
-border-collapse:collapse;
-
-background:white;
-
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
+
+/* ---------- Header ---------- */
 
 th{
+    background:#1b5e20;
+    color:#fff;
 
-background:#1b5e20;
+    padding:14px 12px;
 
-color:white;
-
-padding:12px;
-
-text-align:left;
-
+    text-align:left;
+    font-size:16px;
 }
+
+/* ---------- Cells ---------- */
 
 td{
-
-padding:10px;
-
-border-bottom:1px solid #ddd;
-
+    padding:12px;
+    border-bottom:1px solid #e6e6e6;
+    vertical-align:middle;
 }
 
-.category{
+/* ---------- Zebra Rows ---------- */
 
-background:#ffe082;
+tbody tr:nth-child(even):not(.category){
+    background:#fafafa;
+}
 
-font-weight:bold;
+/* ---------- Hover ---------- */
 
-font-size:18px;
+tbody tr:not(.category):hover{
+    background:#f1f8f2;
+}
+
+/* ---------- Category ---------- */
+
+.category td{
+    background:#ffe082;
+    color:#1b5e20;
+
+    font-weight:bold;
+    font-size:19px;
+
+    padding:14px;
+}
+
+/* ---------- Price ---------- */
+
+td:nth-child(3){
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+/* ---------- Status ---------- */
+
+td:nth-child(4){
+    white-space:nowrap;
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width:768px){
+
+    .container{
+        padding:15px;
+    }
+
+    .logo{
+        width:170px;
+    }
+
+    .subtitle{
+        font-size:22px;
+    }
+
+    table{
+        font-size:14px;
+    }
+
+    th,
+    td{
+        padding:10px 8px;
+    }
 
 }
