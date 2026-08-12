@@ -1,40 +1,41 @@
+:root{--green:#0d4f2b;--green-dark:#07351d;--gold:#c98a12;--gold-light:#e8bd55;--cream:#fbf5e7;--text:#26332b;--muted:#68736c;--white:#fff;--shadow:0 12px 35px rgba(7,53,29,.10);--radius:18px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--cream);line-height:1.6}
+a{color:inherit}
+
 /* ===========================
-   18 Steps Pantry & Spices
-   Catalogue Styles
+   Header / Navigation
+   (matches website repository)
 =========================== */
 
-body{
-    margin:0;
-    padding:0;
-    font-family:Arial, Helvetica, sans-serif;
-    background:#f5f5f0;
-    color:#333;
-}
+.site-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.97);border-bottom:1px solid #e7e0d2;backdrop-filter:blur(10px)}
+.nav-wrap{max-width:1180px;margin:auto;min-height:76px;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:25px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--green);white-space:nowrap}
+.brand-logo{height:56px;width:56px;display:block;border-radius:50%}
+.main-nav{display:flex;align-items:center;gap:22px}
+.main-nav a{text-decoration:none;font-size:14px;font-weight:600;color:var(--green)}
+.main-nav a:hover{color:var(--gold)}
+.main-nav a[aria-current="page"]{color:var(--gold)}
+.menu-toggle{display:none;width:44px;height:40px;border:1px solid #d8d0c1;border-radius:9px;background:#fff;cursor:pointer}
+.menu-toggle span{display:block;width:20px;height:2px;background:var(--green);margin:4px auto}
 
-.container{
-    max-width:1100px;
-    margin:0 auto;
-    padding:25px;
-}
+/* ===========================
+   Shared section / heading styles
+   (matches website repository)
+=========================== */
 
-/* ---------- Logo ---------- */
+.section{padding:70px 24px}
+.section-inner{max-width:1120px;margin:auto}
+.section h2{margin:0;color:var(--green-dark);font-family:Georgia,'Times New Roman',serif;font-weight:500;font-size:clamp(30px,4vw,44px);line-height:1.15}
+.section-label{margin:0 0 12px;color:var(--gold);font-size:13px;font-weight:800;letter-spacing:2.5px}
+.centered{text-align:center}
+.section-heading{max-width:760px;margin:0 auto 40px}
+.section-heading>p:last-child{color:var(--muted)}
 
-.logo{
-    display:block;
-    width:220px;
-    max-width:90%;
-    margin:10px auto;
-}
+/* ---------- Catalogue hero ---------- */
 
-/* ---------- Heading ---------- */
-
-.subtitle{
-    text-align:center;
-    font-size:28px;
-    font-weight:600;
-    color:#1b5e20;
-    margin:5px 0 30px;
-}
+.catalogue-hero{padding-bottom:0}
 
 /* ---------- Search ---------- */
 
@@ -45,17 +46,19 @@ body{
     box-sizing:border-box;
 
     font-size:16px;
+    font-family:Arial,Helvetica,sans-serif;
 
-    border:1px solid #ccc;
-    border-radius:6px;
+    border:1px solid #e8e0d0;
+    border-radius:10px;
 
+    background:#fff;
     outline:none;
     transition:.2s;
 }
 
 #search:focus{
-    border-color:#1b5e20;
-    box-shadow:0 0 5px rgba(27,94,32,.25);
+    border-color:var(--green);
+    box-shadow:0 0 5px rgba(13,79,43,.25);
 }
 
 /* ---------- Table ---------- */
@@ -65,92 +68,106 @@ table{
     border-collapse:collapse;
     background:#fff;
 
-    border-radius:8px;
+    border-radius:var(--radius);
     overflow:hidden;
 
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
+    box-shadow:var(--shadow);
 }
 
 /* ---------- Header ---------- */
 
 th{
-    background:#1b5e20;
+    background:var(--green);
     color:#fff;
 
     padding:14px 12px;
 
     text-align:left;
     font-size:16px;
+    font-family:Georgia,serif;
+    font-weight:normal;
+    letter-spacing:.5px;
 }
 
 /* ---------- Cells ---------- */
 
 td{
     padding:12px;
-    border-bottom:1px solid #e6e6e6;
+    border-bottom:1px solid #efe9dc;
     vertical-align:middle;
 }
 
 /* ---------- Zebra Rows ---------- */
 
 tbody tr:nth-child(even):not(.category){
-    background:#fafafa;
+    background:#fbf9f4;
 }
 
 /* ---------- Hover ---------- */
 
 tbody tr:not(.category):hover{
-    background:#f1f8f2;
+    background:#f2f7f3;
 }
 
 /* ---------- Category ---------- */
 
 .category td{
-    background:#ffe082;
-    color:#1b5e20;
+    background:var(--gold-light);
+    color:var(--green-dark);
 
     font-weight:bold;
-    font-size:19px;
+    font-size:18px;
+    font-family:Georgia,serif;
 
     padding:14px;
 }
 
-/* ---------- Price ---------- */
-
-td:nth-child(3){
-    font-weight:bold;
-    white-space:nowrap;
-}
-
 /* ---------- Status ---------- */
 
-td:nth-child(4){
+td:nth-child(3){
     white-space:nowrap;
 }
 
-/* ---------- Mobile ---------- */
+/* ===========================
+   Footer
+   (matches website repository)
+=========================== */
 
-@media (max-width:768px){
+.site-footer{color:#d5e1d9;background:#052516;padding:35px 24px}
+.footer-inner{max-width:1120px;margin:auto;display:grid;grid-template-columns:1.4fr 1fr auto;align-items:center;gap:30px}
+.footer-inner strong{color:#fff;letter-spacing:1.5px}
+.footer-inner p{margin:5px 0 0;color:#9eb3a5;font-size:12px}
+.footer-links{display:flex;flex-wrap:wrap;gap:14px}
+.footer-links a{color:#d5e1d9;text-decoration:none;font-size:12px}
+.footer-links a:hover{color:var(--gold-light)}
+.copyright{text-align:right}
 
-    .container{
-        padding:15px;
-    }
+/* ---------- Back to top ---------- */
 
-    .logo{
-        width:170px;
-    }
+.back-to-top{position:fixed;right:24px;bottom:24px;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--green);border:2px solid var(--gold);box-shadow:0 8px 24px rgba(7,53,29,.22);z-index:1100;opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .2s,visibility .2s,transform .2s,background .2s;text-decoration:none;color:#fff;font-size:20px}
+.back-to-top.show{opacity:1;visibility:visible;transform:translateY(0)}
+.back-to-top:hover{background:var(--green-dark);transform:translateY(-2px)}
 
-    .subtitle{
-        font-size:22px;
-    }
+/* ===========================
+   Mobile
+=========================== */
 
-    table{
-        font-size:14px;
-    }
+@media(max-width:900px){
+    .main-nav{gap:12px}
+    .main-nav a{font-size:12px}
+    .footer-inner{grid-template-columns:1fr}
+    .copyright{text-align:left}
+}
 
-    th,
-    td{
-        padding:10px 8px;
-    }
-
+@media(max-width:700px){
+    .nav-wrap{min-height:68px;padding:9px 16px}
+    .brand-logo{width:44px;height:44px}
+    .menu-toggle{display:block}
+    .main-nav{position:absolute;top:68px;left:0;right:0;display:none;flex-direction:column;align-items:stretch;gap:0;background:#fff;border-bottom:1px solid #e7e0d2;box-shadow:0 12px 25px rgba(0,0,0,.08)}
+    .main-nav.open{display:flex}
+    .main-nav a{padding:14px 20px;border-top:1px solid #eee9df;font-size:14px}
+    .section{padding:45px 20px}
+    table{font-size:14px}
+    th,td{padding:10px 8px}
+    .back-to-top{right:16px;bottom:18px;width:48px;height:48px}
 }
