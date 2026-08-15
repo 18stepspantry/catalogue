@@ -190,9 +190,9 @@ table{
     box-shadow:var(--shadow);
 }
 
-th:nth-child(1), td:nth-child(1){ width:54%; }
-th:nth-child(2), td:nth-child(2){ width:23%; }
-th:nth-child(3), td:nth-child(3){ width:23%; }
+th:nth-child(1), td:nth-child(1){ width:68%; }
+th:nth-child(2), td:nth-child(2){ width:16%; }
+th:nth-child(3), td:nth-child(3){ width:16%; }
 
 th, td{
     word-wrap:break-word;
@@ -251,19 +251,38 @@ tbody tr:not(.category):hover{
     padding:14px;
 }
 
-/* ---------- Offer badge ---------- */
+/* ---------- Product name + offer badge ---------- */
+
+.product-name{
+    display:flex;
+    align-items:baseline;
+    flex-wrap:nowrap;
+    gap:6px;
+}
+
+.product-name .product-name-text{
+    min-width:0;
+    flex-shrink:1;
+}
 
 .offer-badge{
     display:inline-block;
-    margin-left:8px;
+    flex-shrink:0;
+    max-width:120px;
     padding:2px 10px;
     border-radius:999px;
     background:var(--gold-light);
     color:var(--green-dark);
-    font-size:11px;
+    font-size:10px;
     font-weight:bold;
     white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
     vertical-align:middle;
+}
+
+@media(max-width:768px){
+    .offer-badge{ max-width:90px; font-size:9px; }
 }
 
 /* ---------- Status ---------- */

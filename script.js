@@ -177,7 +177,7 @@ fetch("products.csv")
       // ------------------------------
       html += `
         <tr class="product-row">
-          <td class="product-name">${escapeHTML(product)}${offer ? ` <span class="offer-badge">${escapeHTML(offer)}</span>` : ""}</td>
+          <td class="product-name"><span class="product-name-text">${escapeHTML(product)}</span>${offer ? `<span class="offer-badge" title="${escapeHTML(offer)}">${escapeHTML(offer)}</span>` : ""}</td>
           <td>${escapeHTML(packSize)}</td>
           <td>${escapeHTML(status)}</td>
         </tr>
