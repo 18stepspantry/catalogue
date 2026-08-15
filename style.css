@@ -37,6 +37,115 @@ a{color:inherit}
 
 .catalogue-hero{padding-bottom:0}
 
+/* ---------- Floating category menu ---------- */
+
+.category-fab{
+    position:fixed;
+    left:24px;
+    bottom:24px;
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--green);
+    border:2px solid var(--gold);
+    color:#fff;
+    box-shadow:0 8px 24px rgba(7,53,29,.22);
+    z-index:1100;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.category-fab:hover{
+    background:var(--green-dark);
+    transform:translateY(-2px);
+}
+
+.category-fab-menu{
+    position:fixed;
+    left:24px;
+    bottom:86px;
+    width:min(260px,calc(100vw - 48px));
+    max-height:min(60vh,420px);
+    overflow-y:auto;
+    background:#fff;
+    border:1px solid #e8e0d0;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:14px;
+    z-index:1100;
+}
+
+.category-fab-title{
+    margin:0 0 10px;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:1px;
+    color:var(--gold);
+    text-transform:uppercase;
+}
+
+#categoryFabList{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+#categoryFabList a{
+    display:block;
+    padding:9px 10px;
+    border-radius:8px;
+    color:var(--green);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+}
+
+#categoryFabList a:hover{
+    background:var(--cream);
+    color:var(--gold);
+}
+
+@media(max-width:700px){
+    .category-fab{left:16px;bottom:18px;width:48px;height:48px}
+    .category-fab-menu{left:16px;bottom:76px}
+}
+
+/* ---------- Category quick-jump nav ---------- */
+
+.category-nav{
+    display:flex;
+    flex-wrap:nowrap;
+    gap:8px;
+    overflow-x:auto;
+    padding:4px 2px 16px;
+    margin-bottom:10px;
+    scrollbar-width:thin;
+}
+
+.category-pill{
+    flex-shrink:0;
+    display:inline-block;
+    padding:8px 16px;
+    border-radius:999px;
+    border:1px solid #e8e0d0;
+    background:#fff;
+    color:var(--green);
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    white-space:nowrap;
+    transition:.2s;
+}
+
+.category-pill:hover{
+    background:var(--green);
+    color:#fff;
+    border-color:var(--green);
+}
+
 /* ---------- Search ---------- */
 
 #search{
@@ -63,8 +172,15 @@ a{color:inherit}
 
 /* ---------- Table ---------- */
 
+.table-scroll{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+}
+
 table{
     width:100%;
+    table-layout:fixed;
     border-collapse:collapse;
     background:#fff;
 
@@ -72,6 +188,15 @@ table{
     overflow:hidden;
 
     box-shadow:var(--shadow);
+}
+
+th:nth-child(1), td:nth-child(1){ width:54%; }
+th:nth-child(2), td:nth-child(2){ width:23%; }
+th:nth-child(3), td:nth-child(3){ width:23%; }
+
+th, td{
+    word-wrap:break-word;
+    overflow-wrap:break-word;
 }
 
 /* ---------- Header ---------- */
@@ -111,6 +236,10 @@ tbody tr:not(.category):hover{
 
 /* ---------- Category ---------- */
 
+.category{
+    scroll-margin-top:100px;
+}
+
 .category td{
     background:var(--gold-light);
     color:var(--green-dark);
@@ -120,6 +249,21 @@ tbody tr:not(.category):hover{
     font-family:Georgia,serif;
 
     padding:14px;
+}
+
+/* ---------- Offer badge ---------- */
+
+.offer-badge{
+    display:inline-block;
+    margin-left:8px;
+    padding:2px 10px;
+    border-radius:999px;
+    background:var(--gold-light);
+    color:var(--green-dark);
+    font-size:11px;
+    font-weight:bold;
+    white-space:nowrap;
+    vertical-align:middle;
 }
 
 /* ---------- Status ---------- */

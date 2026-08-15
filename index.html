@@ -41,6 +41,9 @@
     id="search"
     placeholder="Search products...">
 
+  <nav id="categoryNav" class="category-nav" aria-label="Jump to category"></nav>
+
+  <div class="table-scroll">
   <table id="catalogue">
 
     <thead>
@@ -56,6 +59,7 @@
     </tbody>
 
   </table>
+  </div>
 
 </div></section>
 
@@ -72,6 +76,14 @@
   <p class="copyright">© 18 Steps Pantry &amp; Spices</p>
 </div></footer>
 
+<button id="categoryFabBtn" class="category-fab" aria-label="Jump to category" aria-expanded="false">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="14" y2="18"></line></svg>
+</button>
+<div id="categoryFabMenu" class="category-fab-menu" hidden>
+  <p class="category-fab-title">Jump to category</p>
+  <div id="categoryFabList"></div>
+</div>
+
 <a href="#" class="back-to-top" id="backToTop" aria-label="Back to top" title="Back to top">↑</a>
 
 <script>
@@ -83,6 +95,27 @@ if(backToTop){
   const updateBackToTop=()=>backToTop.classList.toggle('show',window.scrollY>450);
   window.addEventListener('scroll',updateBackToTop,{passive:true});
   updateBackToTop();
+}
+
+const categoryFabBtn=document.getElementById('categoryFabBtn'),categoryFabMenu=document.getElementById('categoryFabMenu');
+if(categoryFabBtn&&categoryFabMenu){
+  const closeFabMenu=()=>{categoryFabMenu.hidden=true;categoryFabBtn.setAttribute('aria-expanded','false');};
+  const openFabMenu=()=>{categoryFabMenu.hidden=false;categoryFabBtn.setAttribute('aria-expanded','true');};
+  categoryFabBtn.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    categoryFabMenu.hidden?openFabMenu():closeFabMenu();
+  });
+  document.addEventListener('click',(e)=>{
+    if(!categoryFabMenu.hidden&&!categoryFabMenu.contains(e.target)&&e.target!==categoryFabBtn){
+      closeFabMenu();
+    }
+  });
+  categoryFabMenu.addEventListener('click',(e)=>{
+    if(e.target.tagName==='A'){closeFabMenu();}
+  });
+  document.addEventListener('keydown',(e)=>{
+    if(e.key==='Escape'){closeFabMenu();}
+  });
 }
 </script>
 

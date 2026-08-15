@@ -98,14 +98,29 @@ fetch("products.csv")
         .replaceAll("'", "&#039;");
     }
 
+    // ------------------------------
+    // SLUGIFY CATEGORY NAMES
+    // Turns "RAVA/FLOUR/DAL" into "cat-rava-flour-dal"
+    // so category rows can be linked to directly.
+    // ------------------------------
+    function slugify(value) {
+      return "cat-" + String(value)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     const rows = parseCSV(text);
 
     let html = "";
+    const categories = [];
 
     rows.forEach(columns => {
       const product = (columns[0] || "").trim();
       const packSize = (columns[1] || "").trim();
       const status = (columns[2] || "").trim();
+      const offer = (columns[3] || "").trim();
 
       const productLower = product.toLowerCase();
 
@@ -130,10 +145,15 @@ fetch("products.csv")
         status === ""
       ) {
         html += `
-          <tr class="category">
+          <tr class="category" id="${slugify(product)}">
             <td colspan="3">${escapeHTML(product)}</td>
           </tr>
         `;
+
+        categories.push({
+          name: product,
+          slug: slugify(product)
+        });
 
         return;
       }
@@ -157,7 +177,7 @@ fetch("products.csv")
       // ------------------------------
       html += `
         <tr class="product-row">
-          <td class="product-name">${escapeHTML(product)}</td>
+          <td class="product-name">${escapeHTML(product)}${offer ? ` <span class="offer-badge">${escapeHTML(offer)}</span>` : ""}</td>
           <td>${escapeHTML(packSize)}</td>
           <td>${escapeHTML(status)}</td>
         </tr>
@@ -165,6 +185,31 @@ fetch("products.csv")
     });
 
     tbody.innerHTML = html;
+
+    // ------------------------------
+    // CATEGORY QUICK-JUMP NAV
+    // A row of pill links, one per category,
+    // that scroll straight to that section.
+    // ------------------------------
+    const categoryNav = document.getElementById("categoryNav");
+
+    if (categoryNav && categories.length > 0) {
+      categoryNav.innerHTML = categories
+        .map(category =>
+          `<a href="#${category.slug}" class="category-pill">${escapeHTML(category.name)}</a>`
+        )
+        .join("");
+    }
+
+    const categoryFabList = document.getElementById("categoryFabList");
+
+    if (categoryFabList && categories.length > 0) {
+      categoryFabList.innerHTML = categories
+        .map(category =>
+          `<a href="#${category.slug}">${escapeHTML(category.name)}</a>`
+        )
+        .join("");
+    }
 
     // ------------------------------
     // SEARCH
