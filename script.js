@@ -212,6 +212,23 @@ fetch("products.csv")
     }
 
     // ------------------------------
+    // JUMP TO CATEGORY ON PAGE LOAD
+    // If the page was opened with a #cat-... link
+    // (e.g. from the website's category tiles),
+    // the browser tries to scroll to it BEFORE this
+    // script has built the table, so that automatic
+    // scroll silently fails. Do it manually instead,
+    // now that the target actually exists.
+    // ------------------------------
+    if (window.location.hash) {
+      const target = document.querySelector(window.location.hash);
+
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    // ------------------------------
     // SEARCH
     // Searches PRODUCT NAMES ONLY.
     // Category names are not searched.
