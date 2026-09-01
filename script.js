@@ -446,15 +446,14 @@ fetch("products.csv", { cache: "no-store" })
           <p class="order-field-error" id="orderFieldError" hidden></p>
         </div>
         <div class="order-actions">
-          <p class="order-send-label">Order via:</p>
-          <button type="button" class="order-btn order-btn-whatsapp" id="orderSendWhatsapp">
-            <i class="ti ti-brand-whatsapp" aria-hidden="true"></i> 1. WhatsApp
-          </button>
-          <p class="order-or">or</p>
           <button type="button" class="order-btn order-btn-send" id="orderSendNow">
-            <i class="ti ti-send" aria-hidden="true"></i> 2. Send Order Now
+            <i class="ti ti-send" aria-hidden="true"></i> 1. Submit Order
           </button>
           <p class="order-send-hint">We'll receive your order by email right away.</p>
+          <p class="order-or">or</p>
+          <button type="button" class="order-btn order-btn-whatsapp" id="orderSendWhatsapp">
+            <i class="ti ti-brand-whatsapp" aria-hidden="true"></i> 2. WhatsApp
+          </button>
           <button type="button" class="order-clear" id="orderClearBtn">Clear order</button>
         </div>
       `;
