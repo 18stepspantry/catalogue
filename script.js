@@ -174,10 +174,22 @@ fetch("products.csv", { cache: "no-store" })
       // PRODUCT ROW
       // Three columns:
       // Product | Pack Size | Status
+      // A quantity stepper is added for in-stock
+      // items only, so customers can build an order.
       // ------------------------------
+      const isOutOfStock = status.toLowerCase().includes("out of stock");
+
+      const stepper = isOutOfStock ? "" : `
+        <span class="qty-stepper" data-name="${escapeHTML(product)}" data-pack="${escapeHTML(packSize)}">
+          <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
+          <span class="qty-value">0</span>
+          <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
+        </span>
+      `;
+
       html += `
         <tr class="product-row">
-          <td class="product-name"><span class="product-name-text">${escapeHTML(product)}</span>${offer ? `<span class="offer-badge" title="${escapeHTML(offer)}">${escapeHTML(offer)}</span>` : ""}</td>
+          <td class="product-name"><span class="product-name-text">${escapeHTML(product)}</span>${offer ? `<span class="offer-badge" title="${escapeHTML(offer)}">${escapeHTML(offer)}</span>` : ""}${stepper}</td>
           <td>${escapeHTML(packSize)}</td>
           <td>${escapeHTML(status)}</td>
         </tr>
@@ -226,6 +238,233 @@ fetch("products.csv", { cache: "no-store" })
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
       }
+    }
+
+    // ============================================================
+    // ORDER BUILDER
+    // Lets customers pick quantities as they browse, then send
+    // the whole list via WhatsApp, Email, or copy it manually.
+    // Saved in localStorage so it survives closing the page.
+    // ============================================================
+    const ORDER_STORAGE_KEY = "catalogueOrder";
+    const WHATSAPP_NUMBER = "61478988767";
+    const ORDER_EMAIL = "18stepspantryandspices@gmail.com";
+
+    function loadOrder() {
+      try {
+        const saved = localStorage.getItem(ORDER_STORAGE_KEY);
+        return saved ? JSON.parse(saved) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveOrder(order) {
+      localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
+    }
+
+    let orderItems = loadOrder();
+
+    const orderFabBtn = document.getElementById("orderFabBtn");
+    const orderFabCount = document.getElementById("orderFabCount");
+    const orderPanel = document.getElementById("orderPanel");
+    const orderPanelBody = document.getElementById("orderPanelBody");
+
+    function orderKey(name, pack) {
+      return `${name}||${pack}`;
+    }
+
+    function totalOrderCount() {
+      return Object.values(orderItems).reduce((sum, item) => sum + item.qty, 0);
+    }
+
+    function updateOrderBadge() {
+      const count = totalOrderCount();
+
+      if (orderFabBtn && orderFabCount) {
+        orderFabCount.textContent = count;
+        orderFabBtn.classList.toggle("show", count > 0);
+      }
+    }
+
+    function syncSteppersFromOrder() {
+      document.querySelectorAll(".qty-stepper").forEach(stepper => {
+        const key = orderKey(stepper.dataset.name, stepper.dataset.pack);
+        const qty = orderItems[key] ? orderItems[key].qty : 0;
+        stepper.querySelector(".qty-value").textContent = qty;
+      });
+    }
+
+    function setQty(name, pack, qty) {
+      const key = orderKey(name, pack);
+
+      if (qty <= 0) {
+        delete orderItems[key];
+      } else {
+        orderItems[key] = { name, pack, qty };
+      }
+
+      saveOrder(orderItems);
+      updateOrderBadge();
+    }
+
+    // ------------------------------
+    // UNIFIED QTY HANDLER
+    // One single listener handles every +/- click, whether it's
+    // in the main table or inside the open order panel. It always
+    // reads/writes the authoritative orderItems state (never the
+    // currently-displayed number), then re-syncs every stepper on
+    // the page and refreshes the panel if it's open. This avoids
+    // the table and panel ever showing different numbers.
+    // ------------------------------
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".qty-btn");
+      if (!btn) return;
+
+      const stepper = btn.closest(".qty-stepper");
+      if (!stepper) return;
+
+      const name = stepper.dataset.name;
+      const pack = stepper.dataset.pack;
+      const key = orderKey(name, pack);
+      let qty = orderItems[key] ? orderItems[key].qty : 0;
+
+      qty = btn.classList.contains("qty-plus") ? qty + 1 : Math.max(0, qty - 1);
+
+      setQty(name, pack, qty);
+      syncSteppersFromOrder();
+
+      if (orderPanel && !orderPanel.hidden) {
+        renderOrderPanel();
+      }
+    });
+
+    // Restore any previously saved quantities once the table exists.
+    syncSteppersFromOrder();
+    updateOrderBadge();
+
+    function buildOrderText() {
+      const items = Object.values(orderItems);
+
+      const lines = items.map(item =>
+        `- ${item.name}${item.pack ? ` (${item.pack})` : ""} x${item.qty}`
+      );
+
+      return `Hi 18 Steps Pantry & Spices, I'd like to order:\n\n${lines.join("\n")}\n\nThank you!`;
+    }
+
+    function renderOrderPanel() {
+      const items = Object.values(orderItems);
+
+      if (items.length === 0) {
+        orderPanelBody.innerHTML = `<p class="order-empty">Your order is empty. Add items using the + buttons in the catalogue.</p>`;
+        return;
+      }
+
+      const rows = items.map(item => {
+        const key = orderKey(item.name, item.pack);
+        return `
+          <div class="order-row" data-key="${escapeHTML(key)}">
+            <div class="order-row-info">
+              <span class="order-row-name">${escapeHTML(item.name)}</span>
+              ${item.pack ? `<span class="order-row-pack">${escapeHTML(item.pack)}</span>` : ""}
+            </div>
+            <span class="qty-stepper" data-name="${escapeHTML(item.name)}" data-pack="${escapeHTML(item.pack)}">
+              <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
+              <span class="qty-value">${item.qty}</span>
+              <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
+            </span>
+          </div>
+        `;
+      }).join("");
+
+      orderPanelBody.innerHTML = `
+        <div class="order-list">${rows}</div>
+        <div class="order-actions">
+          <p class="order-send-label">Order via:</p>
+          <a class="order-btn order-btn-whatsapp" id="orderSendWhatsapp" href="#" target="_blank" rel="noopener">
+            <i class="ti ti-brand-whatsapp" aria-hidden="true"></i> 1. WhatsApp
+          </a>
+          <p class="order-or">or</p>
+          <button type="button" class="order-btn order-btn-copy" id="orderCopyBtn">
+            <i class="ti ti-copy" aria-hidden="true"></i> 2. Copy your order
+          </button>
+          <p class="order-email-hint">...and send it as an email to<br><strong>${ORDER_EMAIL}</strong></p>
+          <a class="order-btn order-btn-email" id="orderSendEmail" href="#">
+            <i class="ti ti-mail" aria-hidden="true"></i> Open Email
+          </a>
+          <button type="button" class="order-clear" id="orderClearBtn">Clear order</button>
+        </div>
+      `;
+
+      const text = buildOrderText();
+
+      const waLink = document.getElementById("orderSendWhatsapp");
+      if (waLink) {
+        waLink.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      }
+
+      const emailLink = document.getElementById("orderSendEmail");
+      if (emailLink) {
+        emailLink.href = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent("Order from 18 Steps Pantry & Spices website")}&body=${encodeURIComponent(text)}`;
+      }
+
+      const copyBtn = document.getElementById("orderCopyBtn");
+      if (copyBtn) {
+        copyBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(text).then(() => {
+            copyBtn.innerHTML = `<i class="ti ti-check" aria-hidden="true"></i> Copied!`;
+            setTimeout(() => {
+              copyBtn.innerHTML = `<i class="ti ti-copy" aria-hidden="true"></i> 2. Copy your order`;
+            }, 1800);
+          });
+        });
+      }
+
+      const clearBtn = document.getElementById("orderClearBtn");
+      if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+          orderItems = {};
+          saveOrder(orderItems);
+          updateOrderBadge();
+          syncSteppersFromOrder();
+          renderOrderPanel();
+        });
+      }
+
+      // Steppers inside the panel are handled by the same
+      // unified listener as the table (see below) - no
+      // separate wiring needed here.
+    }
+
+    if (orderFabBtn && orderPanel) {
+      const openOrderPanel = () => {
+        renderOrderPanel();
+        orderPanel.hidden = false;
+        orderFabBtn.setAttribute("aria-expanded", "true");
+      };
+      const closeOrderPanel = () => {
+        orderPanel.hidden = true;
+        orderFabBtn.setAttribute("aria-expanded", "false");
+      };
+
+      orderFabBtn.addEventListener("click", () => {
+        orderPanel.hidden ? openOrderPanel() : closeOrderPanel();
+      });
+
+      document.addEventListener("click", (e) => {
+        if (orderPanel.hidden) return;
+        if (orderPanel.contains(e.target)) return;
+        if (e.target === orderFabBtn || orderFabBtn.contains(e.target)) return;
+        if (e.target.closest(".qty-stepper")) return; // adjusting quantity shouldn't close the panel
+        closeOrderPanel();
+      });
+
+      document.getElementById("orderPanelClose")?.addEventListener("click", closeOrderPanel);
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !orderPanel.hidden) closeOrderPanel();
+      });
     }
 
     // ------------------------------
