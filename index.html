@@ -15,6 +15,7 @@
 <meta property="og:image" content="https://catalogue.18stepspantryandspices.com.au/Logo.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
 </head>
 <body>
 
@@ -94,6 +95,18 @@
 </div>
 
 <a href="#" class="back-to-top" id="backToTop" aria-label="Back to top" title="Back to top">↑</a>
+
+<button id="orderFabBtn" class="order-fab" aria-label="View my order" aria-expanded="false">
+  <i class="ti ti-shopping-cart" aria-hidden="true"></i>
+  <span id="orderFabCount" class="order-fab-count">0</span>
+</button>
+<div id="orderPanel" class="order-panel" hidden>
+  <div class="order-panel-header">
+    <p class="order-panel-title">My Order</p>
+    <button id="orderPanelClose" class="order-panel-close" aria-label="Close order">×</button>
+  </div>
+  <div id="orderPanelBody" class="order-panel-body"></div>
+</div>
 
 <script>
 const menuToggle=document.querySelector('.menu-toggle'),nav=document.querySelector('.main-nav');
