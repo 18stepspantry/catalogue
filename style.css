@@ -524,6 +524,46 @@ td:nth-child(3){
     color:var(--muted);
 }
 
+.order-customer-fields{
+    border-top:1px solid #efe9dc;
+    padding-top:14px;
+    margin-bottom:6px;
+}
+
+.order-field-label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:var(--text);
+    margin:10px 0 5px;
+}
+
+.order-required{
+    color:#c0392b;
+}
+
+.order-input{
+    width:100%;
+    padding:9px 12px;
+    font-size:14px;
+    font-family:Arial,Helvetica,sans-serif;
+    border:1px solid #e8e0d0;
+    border-radius:8px;
+    background:#fff;
+    box-sizing:border-box;
+}
+
+.order-input:focus{
+    outline:none;
+    border-color:var(--green);
+}
+
+.order-field-error{
+    margin:8px 0 0;
+    font-size:12px;
+    color:#c0392b;
+}
+
 .order-actions{
     border-top:1px solid #efe9dc;
     padding-top:14px;
@@ -560,29 +600,55 @@ td:nth-child(3){
     cursor:pointer;
 }
 
+.order-btn:disabled{
+    opacity:.7;
+    cursor:default;
+}
+
 .order-btn-whatsapp{
     background:#25D366;
     color:#fff;
 }
 
-.order-btn-copy{
-    background:var(--cream);
-    color:var(--green);
-    border:1px solid #e8e0d0;
+.order-btn-send{
+    background:var(--green);
+    color:#fff;
 }
 
-.order-email-hint{
-    margin:10px 0 8px;
+.order-btn-send:hover:not(:disabled){
+    background:var(--green-dark);
+}
+
+.order-send-hint{
+    margin:10px 0 0;
     font-size:12px;
     color:var(--muted);
     text-align:center;
     line-height:1.4;
 }
 
-.order-btn-email{
-    background:#fff;
+.order-spin{
+    animation:order-spin-anim 0.8s linear infinite;
+}
+
+@keyframes order-spin-anim{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+}
+
+.order-success{
+    text-align:center;
+    padding:20px 10px;
+    font-size:15px;
+    font-weight:600;
     color:var(--green);
-    border:1px solid #e8e0d0;
+}
+
+.order-success i{
+    display:block;
+    font-size:32px;
+    margin-bottom:10px;
+    color:#2e8b57;
 }
 
 .order-clear{

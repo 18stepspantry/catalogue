@@ -243,12 +243,12 @@ fetch("products.csv", { cache: "no-store" })
     // ============================================================
     // ORDER BUILDER
     // Lets customers pick quantities as they browse, then send
-    // the whole list via WhatsApp, Email, or copy it manually.
+    // the whole list via WhatsApp or a one-click email.
     // Saved in localStorage so it survives closing the page.
     // ============================================================
     const ORDER_STORAGE_KEY = "catalogueOrder";
     const WHATSAPP_NUMBER = "61478988767";
-    const ORDER_EMAIL = "18stepspantryandspices@gmail.com";
+    const WEB3FORMS_ACCESS_KEY = "ea427c5e-4ae4-4457-afdf-edd7e9023e80";
 
     function loadOrder() {
       try {
@@ -343,17 +343,42 @@ fetch("products.csv", { cache: "no-store" })
     syncSteppersFromOrder();
     updateOrderBadge();
 
-    function buildOrderText() {
+    function buildOrderText(name, phone) {
       const items = Object.values(orderItems);
 
       const lines = items.map(item =>
         `- ${item.name}${item.pack ? ` (${item.pack})` : ""} x${item.qty}`
       );
 
-      return `Hi 18 Steps Pantry & Spices, I'd like to order:\n\n${lines.join("\n")}\n\nThank you!`;
+      return `Hi 18 Steps Pantry & Spices, I'd like to order:\n\nName: ${name}\nPhone: ${phone}\n\n${lines.join("\n")}\n\nThank you!`;
+    }
+
+    function getCustomerInfo() {
+      const nameInput = document.getElementById("orderCustomerName");
+      const phoneInput = document.getElementById("orderCustomerPhone");
+      return {
+        name: nameInput ? nameInput.value.trim() : "",
+        phone: phoneInput ? phoneInput.value.trim() : ""
+      };
+    }
+
+    function showOrderFieldError(message) {
+      const errorEl = document.getElementById("orderFieldError");
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.hidden = false;
+      }
     }
 
     function renderOrderPanel() {
+      // Preserve anything already typed, so it isn't wiped out
+      // if the panel re-renders while the customer is mid-typing
+      // (e.g. they tap + on another product from the table).
+      const existingNameInput = document.getElementById("orderCustomerName");
+      const existingPhoneInput = document.getElementById("orderCustomerPhone");
+      const preservedName = existingNameInput ? existingNameInput.value : "";
+      const preservedPhone = existingPhoneInput ? existingPhoneInput.value : "";
+
       const items = Object.values(orderItems);
 
       if (items.length === 0) {
@@ -380,44 +405,83 @@ fetch("products.csv", { cache: "no-store" })
 
       orderPanelBody.innerHTML = `
         <div class="order-list">${rows}</div>
+        <div class="order-customer-fields">
+          <label class="order-field-label" for="orderCustomerName">Name <span class="order-required">*</span></label>
+          <input type="text" id="orderCustomerName" class="order-input" placeholder="Your name" value="${escapeHTML(preservedName)}">
+          <label class="order-field-label" for="orderCustomerPhone">Phone Number <span class="order-required">*</span></label>
+          <input type="tel" id="orderCustomerPhone" class="order-input" placeholder="Your phone number" value="${escapeHTML(preservedPhone)}">
+          <p class="order-field-error" id="orderFieldError" hidden></p>
+        </div>
         <div class="order-actions">
           <p class="order-send-label">Order via:</p>
-          <a class="order-btn order-btn-whatsapp" id="orderSendWhatsapp" href="#" target="_blank" rel="noopener">
+          <button type="button" class="order-btn order-btn-whatsapp" id="orderSendWhatsapp">
             <i class="ti ti-brand-whatsapp" aria-hidden="true"></i> 1. WhatsApp
-          </a>
-          <p class="order-or">or</p>
-          <button type="button" class="order-btn order-btn-copy" id="orderCopyBtn">
-            <i class="ti ti-copy" aria-hidden="true"></i> 2. Copy your order
           </button>
-          <p class="order-email-hint">...and send it as an email to<br><strong>${ORDER_EMAIL}</strong></p>
-          <a class="order-btn order-btn-email" id="orderSendEmail" href="#">
-            <i class="ti ti-mail" aria-hidden="true"></i> Open Email
-          </a>
+          <p class="order-or">or</p>
+          <button type="button" class="order-btn order-btn-send" id="orderSendNow">
+            <i class="ti ti-send" aria-hidden="true"></i> 2. Send Order Now
+          </button>
+          <p class="order-send-hint">We'll receive your order by email right away.</p>
           <button type="button" class="order-clear" id="orderClearBtn">Clear order</button>
         </div>
       `;
 
-      const text = buildOrderText();
-
-      const waLink = document.getElementById("orderSendWhatsapp");
-      if (waLink) {
-        waLink.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      const waBtn = document.getElementById("orderSendWhatsapp");
+      if (waBtn) {
+        waBtn.addEventListener("click", () => {
+          const { name, phone } = getCustomerInfo();
+          if (!name || !phone) {
+            showOrderFieldError("Please enter your name and phone number.");
+            return;
+          }
+          const text = buildOrderText(name, phone);
+          window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank");
+        });
       }
 
-      const emailLink = document.getElementById("orderSendEmail");
-      if (emailLink) {
-        emailLink.href = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent("Order from 18 Steps Pantry & Spices website")}&body=${encodeURIComponent(text)}`;
-      }
+      const sendBtn = document.getElementById("orderSendNow");
+      if (sendBtn) {
+        sendBtn.addEventListener("click", async () => {
+          const { name, phone } = getCustomerInfo();
+          if (!name || !phone) {
+            showOrderFieldError("Please enter your name and phone number.");
+            return;
+          }
 
-      const copyBtn = document.getElementById("orderCopyBtn");
-      if (copyBtn) {
-        copyBtn.addEventListener("click", () => {
-          navigator.clipboard.writeText(text).then(() => {
-            copyBtn.innerHTML = `<i class="ti ti-check" aria-hidden="true"></i> Copied!`;
-            setTimeout(() => {
-              copyBtn.innerHTML = `<i class="ti ti-copy" aria-hidden="true"></i> 2. Copy your order`;
-            }, 1800);
-          });
+          const text = buildOrderText(name, phone);
+          const originalLabel = sendBtn.innerHTML;
+          sendBtn.disabled = true;
+          sendBtn.innerHTML = `<i class="ti ti-loader-2 order-spin" aria-hidden="true"></i> Sending...`;
+
+          try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({
+                access_key: WEB3FORMS_ACCESS_KEY,
+                subject: "New order - 18 Steps Pantry & Spices website",
+                name: name,
+                phone: phone,
+                message: text
+              })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              orderItems = {};
+              saveOrder(orderItems);
+              updateOrderBadge();
+              syncSteppersFromOrder();
+              orderPanelBody.innerHTML = `<p class="order-success"><i class="ti ti-circle-check" aria-hidden="true"></i> Order sent! We'll be in touch shortly.</p>`;
+            } else {
+              throw new Error("Submission failed");
+            }
+          } catch (err) {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = originalLabel;
+            showOrderFieldError("Couldn't send right now — please try WhatsApp instead, or check your connection.");
+          }
         });
       }
 
