@@ -370,6 +370,39 @@ fetch("products.csv", { cache: "no-store" })
       }
     }
 
+    // ------------------------------
+    // VALIDATION
+    // Only letters/spaces/apostrophes/hyphens for names, and only
+    // recognised Australian phone formats for phone numbers. This
+    // also doubles as protection against malicious input (e.g.
+    // script injection attempts) - anything outside these strict
+    // character sets is rejected outright, never processed.
+    // ------------------------------
+    function isValidName(value) {
+      return /^[A-Za-z\u00C0-\u024F' -]{2,60}$/.test(value);
+    }
+
+    function isValidPhone(value) {
+      const cleaned = value.replace(/[\s-]/g, "");
+      return /^(\+?61|0)4\d{8}$/.test(cleaned) || /^(\+?61|0)[2378]\d{8}$/.test(cleaned);
+    }
+
+    function validateCustomerInfo(name, phone) {
+      if (!name) {
+        return { valid: false, message: "Please enter your name." };
+      }
+      if (!isValidName(name)) {
+        return { valid: false, message: "Please enter a valid name (letters only)." };
+      }
+      if (!phone) {
+        return { valid: false, message: "Please enter your phone number." };
+      }
+      if (!isValidPhone(phone)) {
+        return { valid: false, message: "Please enter a valid Australian phone number, e.g. 04xx xxx xxx or +61 4xx xxx xxx." };
+      }
+      return { valid: true, message: "" };
+    }
+
     function renderOrderPanel() {
       // Preserve anything already typed, so it isn't wiped out
       // if the panel re-renders while the customer is mid-typing
@@ -407,9 +440,9 @@ fetch("products.csv", { cache: "no-store" })
         <div class="order-list">${rows}</div>
         <div class="order-customer-fields">
           <label class="order-field-label" for="orderCustomerName">Name <span class="order-required">*</span></label>
-          <input type="text" id="orderCustomerName" class="order-input" placeholder="Your name" value="${escapeHTML(preservedName)}">
+          <input type="text" id="orderCustomerName" class="order-input" placeholder="Your name" maxlength="60" value="${escapeHTML(preservedName)}">
           <label class="order-field-label" for="orderCustomerPhone">Phone Number <span class="order-required">*</span></label>
-          <input type="tel" id="orderCustomerPhone" class="order-input" placeholder="Your phone number" value="${escapeHTML(preservedPhone)}">
+          <input type="tel" id="orderCustomerPhone" class="order-input" placeholder="Your phone number" inputmode="tel" maxlength="20" value="${escapeHTML(preservedPhone)}">
           <p class="order-field-error" id="orderFieldError" hidden></p>
         </div>
         <div class="order-actions">
@@ -430,8 +463,9 @@ fetch("products.csv", { cache: "no-store" })
       if (waBtn) {
         waBtn.addEventListener("click", () => {
           const { name, phone } = getCustomerInfo();
-          if (!name || !phone) {
-            showOrderFieldError("Please enter your name and phone number.");
+          const check = validateCustomerInfo(name, phone);
+          if (!check.valid) {
+            showOrderFieldError(check.message);
             return;
           }
           const text = buildOrderText(name, phone);
@@ -443,8 +477,9 @@ fetch("products.csv", { cache: "no-store" })
       if (sendBtn) {
         sendBtn.addEventListener("click", async () => {
           const { name, phone } = getCustomerInfo();
-          if (!name || !phone) {
-            showOrderFieldError("Please enter your name and phone number.");
+          const check = validateCustomerInfo(name, phone);
+          if (!check.valid) {
+            showOrderFieldError(check.message);
             return;
           }
 
