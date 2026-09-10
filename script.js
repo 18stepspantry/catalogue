@@ -111,6 +111,18 @@ fetch("products.csv", { cache: "no-store" })
         .replace(/^-+|-+$/g, "");
     }
 
+    // ------------------------------
+    // FORMAT PRICE
+    // Always shows exactly 2 decimals with a $ sign,
+    // no matter how the number was typed in the CSV
+    // (5, 5.0, and 5.00 all display as $5.00).
+    // ------------------------------
+    function formatPrice(value) {
+      const num = parseFloat(value);
+      if (isNaN(num)) return null;
+      return `$${num.toFixed(2)}`;
+    }
+
     const rows = parseCSV(text);
 
     let html = "";
@@ -119,7 +131,7 @@ fetch("products.csv", { cache: "no-store" })
     rows.forEach(columns => {
       const product = (columns[0] || "").trim();
       const packSize = (columns[1] || "").trim();
-      const status = (columns[2] || "").trim();
+      const priceRaw = (columns[2] || "").trim();
       const offer = (columns[3] || "").trim();
 
       const productLower = product.toLowerCase();
@@ -142,7 +154,7 @@ fetch("products.csv", { cache: "no-store" })
       if (
         product !== "" &&
         packSize === "" &&
-        status === ""
+        priceRaw === ""
       ) {
         html += `
           <tr class="category" id="${slugify(product)}">
@@ -165,7 +177,7 @@ fetch("products.csv", { cache: "no-store" })
       // ------------------------------
       if (
         product === "" ||
-        (packSize === "" && status === "")
+        (packSize === "" && priceRaw === "")
       ) {
         return;
       }
@@ -173,14 +185,24 @@ fetch("products.csv", { cache: "no-store" })
       // ------------------------------
       // PRODUCT ROW
       // Three columns:
-      // Product | Pack Size | Status
-      // A quantity stepper is added for in-stock
-      // items only, so customers can build an order.
+      // Product | Pack Size | Price
+      // Column 4 (Offer/Stock) is dual-purpose:
+      // - exactly "Out of Stock" -> grey badge, no stepper
+      // - anything else non-blank -> gold offer badge (informational only)
       // ------------------------------
-      const isOutOfStock = status.toLowerCase().includes("out of stock");
+      const isOutOfStock = offer.trim().toLowerCase() === "out of stock";
+      const price = formatPrice(priceRaw);
+      const priceValue = isNaN(parseFloat(priceRaw)) ? 0 : parseFloat(priceRaw);
+
+      let badge = "";
+      if (isOutOfStock) {
+        badge = `<span class="stock-badge">Out of Stock</span>`;
+      } else if (offer) {
+        badge = `<span class="offer-badge" title="${escapeHTML(offer)}">${escapeHTML(offer)}</span>`;
+      }
 
       const stepper = isOutOfStock ? "" : `
-        <span class="qty-stepper" data-name="${escapeHTML(product)}" data-pack="${escapeHTML(packSize)}">
+        <span class="qty-stepper" data-name="${escapeHTML(product)}" data-pack="${escapeHTML(packSize)}" data-price="${priceValue}">
           <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
           <span class="qty-value">0</span>
           <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
@@ -189,9 +211,9 @@ fetch("products.csv", { cache: "no-store" })
 
       html += `
         <tr class="product-row">
-          <td class="product-name"><span class="product-name-text">${escapeHTML(product)}</span>${offer ? `<span class="offer-badge" title="${escapeHTML(offer)}">${escapeHTML(offer)}</span>` : ""}${stepper}</td>
+          <td class="product-name"><span class="product-name-text">${escapeHTML(product)}</span>${badge}${stepper}</td>
           <td>${escapeHTML(packSize)}</td>
-          <td>${escapeHTML(status)}</td>
+          <td>${price !== null ? price : ""}</td>
         </tr>
       `;
     });
@@ -253,7 +275,18 @@ fetch("products.csv", { cache: "no-store" })
     function loadOrder() {
       try {
         const saved = localStorage.getItem(ORDER_STORAGE_KEY);
-        return saved ? JSON.parse(saved) : {};
+        const parsed = saved ? JSON.parse(saved) : {};
+
+        // Older saved carts (from before prices existed) won't
+        // have a price field - default it to 0 so the panel
+        // doesn't crash trying to format an undefined price.
+        Object.values(parsed).forEach(item => {
+          if (typeof item.price !== "number" || isNaN(item.price)) {
+            item.price = 0;
+          }
+        });
+
+        return parsed;
       } catch (e) {
         return {};
       }
@@ -295,13 +328,14 @@ fetch("products.csv", { cache: "no-store" })
       });
     }
 
-    function setQty(name, pack, qty) {
+    function setQty(name, pack, qty, price) {
       const key = orderKey(name, pack);
 
       if (qty <= 0) {
         delete orderItems[key];
       } else {
-        orderItems[key] = { name, pack, qty };
+        const existingPrice = orderItems[key] ? orderItems[key].price : undefined;
+        orderItems[key] = { name, pack, qty, price: price !== undefined ? price : (existingPrice || 0) };
       }
 
       saveOrder(orderItems);
@@ -326,12 +360,13 @@ fetch("products.csv", { cache: "no-store" })
 
       const name = stepper.dataset.name;
       const pack = stepper.dataset.pack;
+      const price = parseFloat(stepper.dataset.price) || 0;
       const key = orderKey(name, pack);
       let qty = orderItems[key] ? orderItems[key].qty : 0;
 
       qty = btn.classList.contains("qty-plus") ? qty + 1 : Math.max(0, qty - 1);
 
-      setQty(name, pack, qty);
+      setQty(name, pack, qty, price);
       syncSteppersFromOrder();
 
       if (orderPanel && !orderPanel.hidden) {
@@ -343,14 +378,22 @@ fetch("products.csv", { cache: "no-store" })
     syncSteppersFromOrder();
     updateOrderBadge();
 
+    function calculateOrderTotal() {
+      return Object.values(orderItems).reduce((sum, item) => sum + ((item.price || 0) * item.qty), 0);
+    }
+
     function buildOrderText(name, phone) {
       const items = Object.values(orderItems);
 
-      const lines = items.map(item =>
-        `- ${item.name}${item.pack ? ` (${item.pack})` : ""} x${item.qty}`
-      );
+      const lines = items.map(item => {
+        const lineTotal = ((item.price || 0) * item.qty).toFixed(2);
+        const itemLabel = `${item.name}${item.pack ? ` (${item.pack})` : ""}`;
+        return `${item.qty} × ${itemLabel}\n      $${(item.price || 0).toFixed(2)} each = $${lineTotal}`;
+      });
 
-      return `Hi 18 Steps Pantry & Spices, I'd like to order:\n\nName: ${name}\nPhone: ${phone}\n\n${lines.join("\n")}\n\nThank you!`;
+      const total = calculateOrderTotal().toFixed(2);
+
+      return `NEW ORDER — 18 Steps Pantry & Spices\n\nCustomer: ${name}\nPhone: ${phone}\n\n——— ITEMS ———\n\n${lines.join("\n\n")}\n\n——————————————\nTOTAL: $${total}\n\nAny discounts or combo deals qualified for will be applied to the final invoice.`;
     }
 
     function getCustomerInfo() {
@@ -421,23 +464,35 @@ fetch("products.csv", { cache: "no-store" })
 
       const rows = items.map(item => {
         const key = orderKey(item.name, item.pack);
+        const lineTotal = ((item.price || 0) * item.qty).toFixed(2);
         return `
           <div class="order-row" data-key="${escapeHTML(key)}">
             <div class="order-row-info">
               <span class="order-row-name">${escapeHTML(item.name)}</span>
               ${item.pack ? `<span class="order-row-pack">${escapeHTML(item.pack)}</span>` : ""}
+              <span class="order-row-price">$${(item.price || 0).toFixed(2)} each</span>
             </div>
-            <span class="qty-stepper" data-name="${escapeHTML(item.name)}" data-pack="${escapeHTML(item.pack)}">
-              <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
-              <span class="qty-value">${item.qty}</span>
-              <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
-            </span>
+            <div class="order-row-right">
+              <span class="qty-stepper" data-name="${escapeHTML(item.name)}" data-pack="${escapeHTML(item.pack)}" data-price="${item.price}">
+                <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
+                <span class="qty-value">${item.qty}</span>
+                <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
+              </span>
+              <span class="order-row-subtotal">$${lineTotal}</span>
+            </div>
           </div>
         `;
       }).join("");
 
+      const total = calculateOrderTotal().toFixed(2);
+
       orderPanelBody.innerHTML = `
         <div class="order-list">${rows}</div>
+        <p class="order-disclaimer">Any discounts or combo deals you qualify for will be applied to your final invoice — the total below doesn't include them yet.</p>
+        <div class="order-total-row">
+          <span>Total</span>
+          <span>$${total}</span>
+        </div>
         <div class="order-customer-fields">
           <label class="order-field-label" for="orderCustomerName">Name <span class="order-required">*</span></label>
           <input type="text" id="orderCustomerName" class="order-input" placeholder="Your name" maxlength="60" value="${escapeHTML(preservedName)}">

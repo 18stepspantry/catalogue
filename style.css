@@ -285,14 +285,30 @@ tbody tr:not(.category):hover{
     vertical-align:middle;
 }
 
-@media(max-width:768px){
-    .offer-badge{ max-width:200px; font-size:10px; }
+.stock-badge{
+    display:inline-block;
+    flex:0 0 auto;
+    padding:2px 10px;
+    border-radius:999px;
+    background:#e8e0d8;
+    color:#6b5f52;
+    font-size:11px;
+    font-weight:bold;
+    white-space:nowrap;
+    vertical-align:middle;
 }
 
-/* ---------- Status ---------- */
+@media(max-width:768px){
+    .offer-badge{ max-width:200px; font-size:10px; }
+    .stock-badge{ font-size:10px; }
+}
+
+/* ---------- Price ---------- */
 
 td:nth-child(3){
     white-space:nowrap;
+    font-weight:bold;
+    color:var(--green);
 }
 
 /* ===========================
@@ -522,6 +538,48 @@ td:nth-child(3){
 .order-row-pack{
     font-size:11px;
     color:var(--muted);
+}
+
+.order-row-price{
+    font-size:11px;
+    color:var(--muted);
+}
+
+.order-row-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:4px;
+    flex-shrink:0;
+}
+
+.order-row-subtotal{
+    font-size:13px;
+    font-weight:700;
+    color:var(--green);
+}
+
+.order-disclaimer{
+    margin:2px 0 12px;
+    padding:10px 12px;
+    background:var(--cream);
+    border-left:3px solid var(--gold);
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.4;
+}
+
+.order-total-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 0;
+    margin-bottom:6px;
+    border-top:2px solid var(--green);
+    border-bottom:2px solid var(--green);
+    font-size:16px;
+    font-weight:800;
+    color:var(--green-dark);
 }
 
 .order-customer-fields{
