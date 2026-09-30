@@ -11,6 +11,26 @@ fetch("products.csv", { cache: "no-store" })
     const tbody = document.querySelector("#catalogue tbody");
     const searchBox = document.getElementById("search");
 
+    // The catalogue is a five-column table:
+    // Product | Quantity | Brand | Pack Size | Price
+    // Older index.html versions had only four header cells.
+    // Always rebuild the header here so the headings can never
+    // become shifted relative to the five product cells.
+    const catalogueTable = document.getElementById("catalogue");
+    const catalogueHead = catalogueTable?.querySelector("thead");
+
+    if (catalogueHead) {
+      catalogueHead.innerHTML = `
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Brand</th>
+          <th scope="col">Pack Size</th>
+          <th scope="col">Price</th>
+        </tr>
+      `;
+    }
+
     // ------------------------------
     // CSV PARSER
     // Supports quoted commas and escaped quotes.
@@ -294,20 +314,72 @@ fetch("products.csv", { cache: "no-store" })
     // scroll silently fails. Do it manually instead,
     // now that the target actually exists.
     // ------------------------------
+    // ------------------------------
+    // SAFE CATEGORY JUMP
+    // Move the page vertically to the category without letting
+    // the browser horizontally scroll the wide mobile table.
+    // ------------------------------
+    function jumpToCategory(target) {
+      if (!target) return;
+
+      const tableScroll = document.querySelector(".table-scroll");
+
+      if (tableScroll) {
+        tableScroll.scrollTo({
+          left: 0,
+          behavior: "auto"
+        });
+      }
+
+      const y =
+        target.getBoundingClientRect().top +
+        window.scrollY -
+        90;
+
+      window.scrollTo({
+        top: y,
+        behavior: "smooth"
+      });
+    }
+
     if (window.location.hash) {
       const target = document.querySelector(window.location.hash);
-
       if (target) {
-        // Scroll vertically without changing the horizontal position
-        // of the wide five-column catalogue table on mobile.
-        const y = target.getBoundingClientRect().top + window.scrollY - 90;
-        window.scrollTo({ top: y, behavior: "smooth" });
-
-        const tableScroll = document.querySelector(".table-scroll");
-        if (tableScroll) {
-          tableScroll.scrollTo({ left: 0, behavior: "auto" });
-        }
+        jumpToCategory(target);
       }
+    }
+
+    // Category links are generated after the table is built.
+    // Handle them explicitly so clicking a category never leaves
+    // the five-column table horizontally shifted.
+    function handleCategoryClick(event) {
+      const link = event.currentTarget;
+      const href = link.getAttribute("href") || "";
+
+      if (!href.startsWith("#")) return;
+
+      const target = document.querySelector(href);
+      if (!target) return;
+
+      event.preventDefault();
+
+      if (history.pushState) {
+        history.pushState(null, "", href);
+      }
+
+      jumpToCategory(target);
+    }
+
+    document
+      .querySelectorAll("#categoryNav a[href^='#'], #categoryFabList a[href^='#']")
+      .forEach(link => {
+        link.addEventListener("click", handleCategoryClick);
+      });
+
+    // Always start the wide table at its left edge after rendering.
+    const tableScrollAfterRender = document.querySelector(".table-scroll");
+    if (tableScrollAfterRender) {
+      tableScrollAfterRender.scrollLeft = 0;
     }
 
     // ============================================================

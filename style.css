@@ -982,3 +982,197 @@ th:nth-child(5), td:nth-child(5){ width:15%; }
         width:auto !important;
     }
 }
+
+
+/* ==========================================================
+   FINAL CATALOGUE TABLE FIX v4
+   The catalogue now has exactly five real columns:
+   Product | Quantity | Brand | Pack Size | Price
+
+   These rules intentionally come LAST so older table rules
+   earlier in the stylesheet cannot override this layout.
+   ========================================================== */
+
+.table-scroll{
+    width:100%;
+    max-width:100%;
+    overflow-x:auto;
+    overflow-y:visible;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+}
+
+#catalogue{
+    width:100%;
+    min-width:0;
+    table-layout:fixed;
+    border-collapse:collapse;
+}
+
+/* Five-column desktop/tablet layout. */
+#catalogue th:nth-child(1),
+#catalogue td:nth-child(1){ width:38%; }
+
+#catalogue th:nth-child(2),
+#catalogue td:nth-child(2){ width:17%; }
+
+#catalogue th:nth-child(3),
+#catalogue td:nth-child(3){ width:17%; }
+
+#catalogue th:nth-child(4),
+#catalogue td:nth-child(4){ width:13%; }
+
+#catalogue th:nth-child(5),
+#catalogue td:nth-child(5){ width:15%; }
+
+#catalogue .product-name{
+    position:static;
+    min-height:0;
+    padding:10px 12px;
+    vertical-align:middle;
+}
+
+#catalogue .product-info{
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:4px;
+}
+
+#catalogue .product-name-text{
+    display:block;
+    min-width:0;
+    white-space:normal;
+    overflow-wrap:break-word;
+    word-break:normal;
+    line-height:1.35;
+}
+
+#catalogue .qty-cell{
+    text-align:center;
+    vertical-align:middle;
+    white-space:nowrap;
+    padding:10px 8px;
+}
+
+#catalogue .qty-cell .qty-stepper{
+    position:static;
+    top:auto;
+    right:auto;
+    bottom:auto;
+    transform:none;
+    display:inline-flex;
+    margin:0 auto;
+}
+
+#catalogue .brand-cell{
+    white-space:normal;
+    overflow-wrap:break-word;
+    word-break:normal;
+}
+
+#catalogue .pack-cell,
+#catalogue .price-cell{
+    white-space:nowrap;
+}
+
+#catalogue .continuation-row .product-name{
+    position:static;
+    padding:8px 12px;
+}
+
+/* Mobile: a deliberate 720px table inside a swipeable viewport.
+   Product gets 300px, so names wrap instead of colliding with Qty. */
+@media(max-width:700px){
+    .table-scroll{
+        width:100%;
+        max-width:100%;
+        overflow-x:auto;
+        overflow-y:visible;
+        -webkit-overflow-scrolling:touch;
+        overscroll-behavior-x:contain;
+    }
+
+    #catalogue{
+        width:720px;
+        min-width:720px;
+        max-width:none;
+        table-layout:fixed;
+    }
+
+    #catalogue th,
+    #catalogue td{
+        box-sizing:border-box;
+        padding:10px 9px;
+    }
+
+    #catalogue th:nth-child(1),
+    #catalogue td:nth-child(1){ width:300px; }
+
+    #catalogue th:nth-child(2),
+    #catalogue td:nth-child(2){ width:92px; }
+
+    #catalogue th:nth-child(3),
+    #catalogue td:nth-child(3){ width:125px; }
+
+    #catalogue th:nth-child(4),
+    #catalogue td:nth-child(4){ width:88px; }
+
+    #catalogue th:nth-child(5),
+    #catalogue td:nth-child(5){ width:115px; }
+
+    #catalogue .product-name{
+        position:static;
+        min-height:0;
+        padding:10px 9px;
+    }
+
+    #catalogue .product-name-text{
+        white-space:normal;
+        overflow-wrap:break-word;
+        word-break:normal;
+        line-height:1.35;
+    }
+
+    #catalogue .qty-cell{
+        padding:10px 8px;
+        text-align:center;
+    }
+
+    #catalogue .qty-cell .qty-stepper{
+        position:static;
+        top:auto;
+        right:auto;
+        bottom:auto;
+        transform:none;
+        display:inline-flex;
+        margin:0 auto;
+    }
+
+    #catalogue .brand-cell{
+        font-size:13px;
+        white-space:normal;
+        overflow-wrap:break-word;
+        word-break:normal;
+    }
+
+    #catalogue .pack-cell{
+        white-space:nowrap;
+    }
+
+    #catalogue .price-cell{
+        font-size:14px;
+        white-space:nowrap;
+    }
+
+    #catalogue .continuation-row .product-name{
+        position:static;
+        padding:8px 9px;
+    }
+
+    #catalogue .category td{
+        width:auto !important;
+    }
+}
