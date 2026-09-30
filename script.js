@@ -127,12 +127,15 @@ fetch("products.csv", { cache: "no-store" })
 
     let html = "";
     const categories = [];
+    let currentProduct = "";
+    let currentBrand = "";
 
     rows.forEach(columns => {
-      const product = (columns[0] || "").trim();
-      const packSize = (columns[1] || "").trim();
-      const priceRaw = (columns[2] || "").trim();
-      const offer = (columns[3] || "").trim();
+      let product = (columns[0] || "").trim();
+      let brand = (columns[1] || "").trim();
+      const packSize = (columns[2] || "").trim();
+      const priceRaw = (columns[3] || "").trim();
+      const offer = (columns[4] || "").trim();
 
       const productLower = product.toLowerCase();
 
@@ -153,12 +156,14 @@ fetch("products.csv", { cache: "no-store" })
       // ------------------------------
       if (
         product !== "" &&
+        brand === "" &&
         packSize === "" &&
-        priceRaw === ""
+        priceRaw === "" &&
+        offer === ""
       ) {
         html += `
           <tr class="category" id="${slugify(product)}">
-            <td colspan="3">${escapeHTML(product)}</td>
+            <td colspan="4">${escapeHTML(product)}</td>
           </tr>
         `;
 
@@ -167,14 +172,28 @@ fetch("products.csv", { cache: "no-store" })
           slug: slugify(product)
         });
 
+        currentProduct = "";
+        currentBrand = "";
         return;
       }
 
       // ------------------------------
-      // IGNORE BLANK OR INVALID ROWS
-      // A real product needs at least a product name
-      // and one other piece of information.
+      // BLANK PRODUCT = CONTINUATION ROW
+      // A blank product name inherits the product and brand
+      // from the immediately preceding product row.
+      // This lets one product have multiple pack-size variants
+      // without repeating the product name in the CSV.
       // ------------------------------
+      const isContinuation = product === "";
+
+      if (isContinuation) {
+        product = currentProduct;
+        if (brand === "") {
+          brand = currentBrand;
+        }
+      }
+
+      // Ignore genuinely invalid rows.
       if (
         product === "" ||
         (packSize === "" && priceRaw === "")
@@ -182,13 +201,19 @@ fetch("products.csv", { cache: "no-store" })
         return;
       }
 
+      // Remember the current product/brand for the next
+      // continuation row.
+      currentProduct = product;
+      currentBrand = brand;
+
       // ------------------------------
       // PRODUCT ROW
-      // Three columns:
-      // Product | Pack Size | Price
-      // Column 4 (Offer/Stock) is dual-purpose:
+      // Four displayed columns:
+      // Product | Brand | Pack Size | Price
+      //
+      // Column 5 in the CSV = Offer/Stock:
       // - exactly "Out of Stock" -> grey badge, no stepper
-      // - anything else non-blank -> gold offer badge (informational only)
+      // - anything else non-blank -> gold offer badge
       // ------------------------------
       const isOutOfStock = offer.trim().toLowerCase() === "out of stock";
       const price = formatPrice(priceRaw);
@@ -202,18 +227,31 @@ fetch("products.csv", { cache: "no-store" })
       }
 
       const stepper = isOutOfStock ? "" : `
-        <span class="qty-stepper" data-name="${escapeHTML(product)}" data-pack="${escapeHTML(packSize)}" data-price="${priceValue}">
+        <span class="qty-stepper"
+              data-name="${escapeHTML(product)}"
+              data-brand="${escapeHTML(brand)}"
+              data-pack="${escapeHTML(packSize)}"
+              data-price="${priceValue}">
           <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
           <span class="qty-value">0</span>
           <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
         </span>
       `;
 
+      const productDisplay = isContinuation
+        ? `<span class="continuation-mark" aria-hidden="true">↳</span>`
+        : `<span class="product-name-text">${escapeHTML(product)}</span>`;
+
       html += `
-        <tr class="product-row">
-          <td class="product-name"><span class="product-name-text">${escapeHTML(product)}</span>${badge}${stepper}</td>
-          <td>${escapeHTML(packSize)}</td>
-          <td>${price !== null ? price : ""}</td>
+        <tr class="product-row${isContinuation ? " continuation-row" : ""}" data-product="${escapeHTML(product.toLowerCase())}">
+          <td class="product-name">
+            ${productDisplay}
+            ${badge}
+            ${stepper}
+          </td>
+          <td class="brand-cell">${escapeHTML(brand)}</td>
+          <td class="pack-cell">${escapeHTML(packSize)}</td>
+          <td class="price-cell">${price !== null ? price : ""}</td>
         </tr>
       `;
     });
@@ -303,8 +341,8 @@ fetch("products.csv", { cache: "no-store" })
     const orderPanel = document.getElementById("orderPanel");
     const orderPanelBody = document.getElementById("orderPanelBody");
 
-    function orderKey(name, pack) {
-      return `${name}||${pack}`;
+    function orderKey(name, brand, pack) {
+      return `${name}||${brand}||${pack}`;
     }
 
     function totalOrderCount() {
@@ -322,20 +360,26 @@ fetch("products.csv", { cache: "no-store" })
 
     function syncSteppersFromOrder() {
       document.querySelectorAll(".qty-stepper").forEach(stepper => {
-        const key = orderKey(stepper.dataset.name, stepper.dataset.pack);
+        const key = orderKey(stepper.dataset.name, stepper.dataset.brand, stepper.dataset.pack);
         const qty = orderItems[key] ? orderItems[key].qty : 0;
         stepper.querySelector(".qty-value").textContent = qty;
       });
     }
 
-    function setQty(name, pack, qty, price) {
-      const key = orderKey(name, pack);
+    function setQty(name, brand, pack, qty, price) {
+      const key = orderKey(name, brand, pack);
 
       if (qty <= 0) {
         delete orderItems[key];
       } else {
         const existingPrice = orderItems[key] ? orderItems[key].price : undefined;
-        orderItems[key] = { name, pack, qty, price: price !== undefined ? price : (existingPrice || 0) };
+        orderItems[key] = {
+          name,
+          brand,
+          pack,
+          qty,
+          price: price !== undefined ? price : (existingPrice || 0)
+        };
       }
 
       saveOrder(orderItems);
@@ -359,14 +403,15 @@ fetch("products.csv", { cache: "no-store" })
       if (!stepper) return;
 
       const name = stepper.dataset.name;
+      const brand = stepper.dataset.brand || "";
       const pack = stepper.dataset.pack;
       const price = parseFloat(stepper.dataset.price) || 0;
-      const key = orderKey(name, pack);
+      const key = orderKey(name, brand, pack);
       let qty = orderItems[key] ? orderItems[key].qty : 0;
 
       qty = btn.classList.contains("qty-plus") ? qty + 1 : Math.max(0, qty - 1);
 
-      setQty(name, pack, qty, price);
+      setQty(name, brand, pack, qty, price);
       syncSteppersFromOrder();
 
       if (orderPanel && !orderPanel.hidden) {
@@ -387,7 +432,7 @@ fetch("products.csv", { cache: "no-store" })
 
       const lines = items.map(item => {
         const lineTotal = ((item.price || 0) * item.qty).toFixed(2);
-        const itemLabel = `${item.name}${item.pack ? ` (${item.pack})` : ""}`;
+        const itemLabel = `${item.name}${item.brand ? ` — ${item.brand}` : ""}${item.pack ? ` (${item.pack})` : ""}`;
         return `${item.qty} × ${itemLabel}\n      $${(item.price || 0).toFixed(2)} each = $${lineTotal}`;
       });
 
@@ -463,17 +508,18 @@ fetch("products.csv", { cache: "no-store" })
       }
 
       const rows = items.map(item => {
-        const key = orderKey(item.name, item.pack);
+        const key = orderKey(item.name, item.brand || "", item.pack);
         const lineTotal = ((item.price || 0) * item.qty).toFixed(2);
         return `
           <div class="order-row" data-key="${escapeHTML(key)}">
             <div class="order-row-info">
               <span class="order-row-name">${escapeHTML(item.name)}</span>
+              ${item.brand ? `<span class="order-row-brand">${escapeHTML(item.brand)}</span>` : ""}
               ${item.pack ? `<span class="order-row-pack">${escapeHTML(item.pack)}</span>` : ""}
               <span class="order-row-price">$${(item.price || 0).toFixed(2)} each</span>
             </div>
             <div class="order-row-right">
-              <span class="qty-stepper" data-name="${escapeHTML(item.name)}" data-pack="${escapeHTML(item.pack)}" data-price="${item.price}">
+              <span class="qty-stepper" data-name="${escapeHTML(item.name)}" data-brand="${escapeHTML(item.brand || "")}" data-pack="${escapeHTML(item.pack)}" data-price="${item.price}">
                 <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
                 <span class="qty-value">${item.qty}</span>
                 <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
@@ -529,7 +575,12 @@ fetch("products.csv", { cache: "no-store" })
 
       const sendBtn = document.getElementById("orderSendNow");
       if (sendBtn) {
-        sendBtn.addEventListener("click", async () => {
+        sendBtn.addEventListener("click", async (e) => {
+          // This stops the submit button from being treated as a
+          // click outside the order panel. It does NOT block the
+          // +/- buttons, which use the separate document-level handler.
+          e.stopPropagation();
+
           const { name, phone } = getCustomerInfo();
           const check = validateCustomerInfo(name, phone);
           if (!check.valid) {
@@ -539,13 +590,17 @@ fetch("products.csv", { cache: "no-store" })
 
           const text = buildOrderText(name, phone);
           const originalLabel = sendBtn.innerHTML;
+
           sendBtn.disabled = true;
           sendBtn.innerHTML = `<i class="ti ti-loader-2 order-spin" aria-hidden="true"></i> Sending...`;
 
           try {
             const response = await fetch("https://api.web3forms.com/submit", {
               method: "POST",
-              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+              },
               body: JSON.stringify({
                 access_key: WEB3FORMS_ACCESS_KEY,
                 subject: "New order - 18 Steps Pantry & Spices website",
@@ -555,21 +610,40 @@ fetch("products.csv", { cache: "no-store" })
               })
             });
 
-            const result = await response.json();
+            let result = {};
+            try {
+              result = await response.json();
+            } catch {
+              result = {};
+            }
 
-            if (result.success) {
+            console.log("Web3Forms response:", response.status, result);
+
+            if (response.ok && result.success) {
               orderItems = {};
               saveOrder(orderItems);
               updateOrderBadge();
               syncSteppersFromOrder();
-              orderPanelBody.innerHTML = `<p class="order-success"><i class="ti ti-circle-check" aria-hidden="true"></i> Order sent! We'll be in touch shortly.</p>`;
+
+              orderPanelBody.innerHTML = `
+                <p class="order-success">
+                  <i class="ti ti-circle-check" aria-hidden="true"></i>
+                  Order sent!<br>
+                  <span>Thank you — we've received your order and will be in touch shortly.</span>
+                </p>
+              `;
             } else {
-              throw new Error("Submission failed");
+              throw new Error(
+                result.message || `Web3Forms returned HTTP ${response.status}.`
+              );
             }
           } catch (err) {
+            console.error("Order submission error:", err);
             sendBtn.disabled = false;
             sendBtn.innerHTML = originalLabel;
-            showOrderFieldError("Couldn't send right now — please try WhatsApp instead, or check your connection.");
+            showOrderFieldError(
+              `Order could not be sent. ${err.message || "Please try again."}`
+            );
           }
         });
       }
@@ -656,9 +730,7 @@ fetch("products.csv", { cache: "no-store" })
           }
 
           const productName =
-            row.querySelector(".product-name")
-              ?.textContent
-              .toLowerCase() || "";
+            row.dataset.product || "";
 
           const matches =
             searchTerm === "" ||
@@ -686,7 +758,7 @@ fetch("products.csv", { cache: "no-store" })
 
     document.querySelector("#catalogue tbody").innerHTML = `
       <tr>
-        <td colspan="3">
+        <td colspan="4">
           Unable to load the catalogue.
         </td>
       </tr>
