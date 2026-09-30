@@ -833,3 +833,136 @@ td:nth-child(4){
         transform:none;
     }
 }
+
+
+/* ==========================================================
+   Catalogue 5-column layout
+   Product | Quantity | Brand | Pack Size | Price
+   Mobile uses horizontal scrolling so each column has room.
+   ========================================================== */
+
+/* Five real table columns (replaces the old 4-column layout). */
+th:nth-child(1), td:nth-child(1){ width:43%; }
+th:nth-child(2), td:nth-child(2){ width:12%; }
+th:nth-child(3), td:nth-child(3){ width:18%; }
+th:nth-child(4), td:nth-child(4){ width:12%; }
+th:nth-child(5), td:nth-child(5){ width:15%; }
+
+/* The price is now column 5, not column 4. */
+td:nth-child(4){
+    white-space:nowrap;
+    font-weight:normal;
+    color:var(--text);
+}
+
+td:nth-child(5){
+    white-space:nowrap;
+    font-weight:bold;
+    color:var(--green);
+}
+
+.qty-cell{
+    text-align:center;
+    vertical-align:middle;
+    white-space:nowrap;
+}
+
+.qty-cell .qty-stepper{
+    position:static;
+    transform:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+}
+
+/* The stepper is now a real table cell, so it no longer overlaps
+   the product name and doesn't need absolute positioning. */
+.product-name{
+    padding-right:12px;
+}
+
+.continuation-row .product-name{
+    padding-right:12px;
+}
+
+@media(max-width:700px){
+    /* Intentionally wider than the phone screen. The customer can
+       swipe horizontally to see all five columns. */
+    .table-scroll{
+        overflow-x:auto;
+        width:100%;
+        -webkit-overflow-scrolling:touch;
+    }
+
+    table{
+        width:720px;
+        min-width:720px;
+        table-layout:fixed;
+    }
+
+    th,td{
+        padding:10px 9px;
+    }
+
+    th{
+        font-size:12px;
+    }
+
+    th:nth-child(1), td:nth-child(1){ width:300px; }
+    th:nth-child(2), td:nth-child(2){ width:92px; }
+    th:nth-child(3), td:nth-child(3){ width:125px; }
+    th:nth-child(4), td:nth-child(4){ width:88px; }
+    th:nth-child(5), td:nth-child(5){ width:115px; }
+
+    .product-name{
+        padding:10px 9px;
+        vertical-align:middle;
+    }
+
+    .product-info{
+        min-width:0;
+        gap:4px;
+    }
+
+    .product-name .product-name-text{
+        line-height:1.35;
+        white-space:normal;
+        overflow-wrap:break-word;
+        word-break:normal;
+    }
+
+    .offer-badge,
+    .stock-badge{
+        max-width:260px;
+        white-space:normal;
+    }
+
+    .qty-cell{
+        padding-left:8px;
+        padding-right:8px;
+    }
+
+    .qty-cell .qty-stepper{
+        margin:0 auto;
+    }
+
+    .brand-cell{
+        font-size:13px;
+        white-space:normal;
+        overflow-wrap:break-word;
+    }
+
+    .pack-cell{
+        white-space:nowrap;
+    }
+
+    td:nth-child(5){
+        font-size:14px;
+    }
+
+    /* Keep the category banner spanning the full five-column table. */
+    .category td{
+        width:auto !important;
+    }
+}

@@ -163,7 +163,7 @@ fetch("products.csv", { cache: "no-store" })
       ) {
         html += `
           <tr class="category" id="${slugify(product)}">
-            <td colspan="4">${escapeHTML(product)}</td>
+            <td colspan="5">${escapeHTML(product)}</td>
           </tr>
         `;
 
@@ -209,7 +209,7 @@ fetch("products.csv", { cache: "no-store" })
       // ------------------------------
       // PRODUCT ROW
       // Four displayed columns:
-      // Product | Brand | Pack Size | Price
+      // Product | Quantity | Brand | Pack Size | Price
       //
       // Column 5 in the CSV = Offer/Stock:
       // - exactly "Out of Stock" -> grey badge, no stepper
@@ -245,10 +245,12 @@ fetch("products.csv", { cache: "no-store" })
       html += `
         <tr class="product-row${isContinuation ? " continuation-row" : ""}" data-product="${escapeHTML(product.toLowerCase())}">
           <td class="product-name">
-            ${productDisplay}
-            ${badge}
-            ${stepper}
+            <span class="product-info">
+              ${productDisplay}
+              ${badge}
+            </span>
           </td>
+          <td class="qty-cell">${stepper}</td>
           <td class="brand-cell">${escapeHTML(brand)}</td>
           <td class="pack-cell">${escapeHTML(packSize)}</td>
           <td class="price-cell">${price !== null ? price : ""}</td>
@@ -758,7 +760,7 @@ fetch("products.csv", { cache: "no-store" })
 
     document.querySelector("#catalogue tbody").innerHTML = `
       <tr>
-        <td colspan="4">
+        <td colspan="5">
           Unable to load the catalogue.
         </td>
       </tr>
