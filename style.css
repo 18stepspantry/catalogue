@@ -172,10 +172,13 @@ a{color:inherit}
 
 /* ---------- Table ---------- */
 
+/* ---------- Table ---------- */
+
 .table-scroll{
     width:100%;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
 }
 
 table{
@@ -183,18 +186,19 @@ table{
     table-layout:fixed;
     border-collapse:collapse;
     background:#fff;
-
     border-radius:var(--radius);
     overflow:hidden;
-
     box-shadow:var(--shadow);
 }
 
-th:nth-child(1), td:nth-child(1){ width:46%; }
-th:nth-child(2), td:nth-child(2){ width:22%; }
-th:nth-child(3), td:nth-child(3){ width:16%; }
-th:nth-child(4), td:nth-child(4){ width:16%; }
+th{
+    white-space:nowrap;
+}
 
+td{
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+}
 th{
     white-space:nowrap;
 }
@@ -329,13 +333,7 @@ tbody tr:not(.category):hover{
     .stock-badge{ font-size:10px; }
 }
 
-/* ---------- Price ---------- */
-
-td:nth-child(4){
-    white-space:nowrap;
-    font-weight:bold;
-    color:var(--green);
-}
+/* ---------- Brand / Pack Size ---------- */
 
 .brand-cell{
     color:var(--muted);
@@ -405,35 +403,51 @@ td:nth-child(4){
     .main-nav.open{display:flex}
     .main-nav a{padding:14px 20px;border-top:1px solid #eee9df;font-size:14px}
     .section{padding:45px 20px}
-    table{font-size:13px;table-layout:fixed}
-    th,td{padding:10px 6px}
-    th{font-size:12px;letter-spacing:0}
-    th:nth-child(1), td:nth-child(1){ width:46%; }
-    th:nth-child(2), td:nth-child(2){ width:22%; }
-    th:nth-child(3), td:nth-child(3){ width:16%; }
-    th:nth-child(4), td:nth-child(4){ width:16%; }
-    .product-name{padding-right:70px}
-    .continuation-row .product-name{padding-right:70px}
-    .product-name > .qty-stepper{right:6px}
     .back-to-top{right:16px;bottom:18px;width:48px;height:48px}
 }
 
 /* ---------- Quantity stepper ---------- */
 
-.product-name > .qty-stepper{
-    position:absolute;
-    right:12px;
-    top:50%;
-    transform:translateY(-50%);
+.qty-stepper{
     display:inline-flex;
     align-items:center;
+    flex-direction:row;
     flex-shrink:0;
     gap:2px;
     background:#fff;
     border:1px solid #e8e0d0;
     border-radius:999px;
     padding:2px;
-    z-index:1;
+    white-space:nowrap;
+}
+
+.qty-btn{
+    width:24px;
+    height:24px;
+    border:none;
+    border-radius:50%;
+    background:var(--cream);
+    color:var(--green);
+    font-size:15px;
+    font-weight:bold;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.qty-btn:hover{
+    background:var(--green);
+    color:#fff;
+}
+
+.qty-value{
+    min-width:20px;
+    text-align:center;
+    font-size:13px;
+    font-weight:bold;
+    color:var(--text);
 }
 
 .qty-btn{
@@ -810,89 +824,87 @@ td:nth-child(4){
 }
 
 
-/* ---------- Final mobile catalogue fix ----------
-   This must come AFTER the base quantity-stepper rules above,
-   so the mobile position is not overwritten by top:50%.
--------------------------------------------------- */
-@media(max-width:700px){
-    .product-name{
-        padding-right:6px;
-        padding-bottom:44px;
-        min-height:78px;
-    }
-
-    .continuation-row .product-name{
-        padding-right:6px;
-        padding-bottom:44px;
-    }
-
-    .product-name > .qty-stepper{
-        top:auto;
-        right:7px;
-        bottom:8px;
-        transform:none;
-    }
-}
 
 
 /* ==========================================================
-   Catalogue 5-column layout
+   Catalogue table layout
    Product | Quantity | Brand | Pack Size | Price
-   Mobile uses horizontal scrolling so each column has room.
    ========================================================== */
 
-/* Five real table columns (replaces the old 4-column layout). */
-th:nth-child(1), td:nth-child(1){ width:43%; }
-th:nth-child(2), td:nth-child(2){ width:12%; }
-th:nth-child(3), td:nth-child(3){ width:18%; }
-th:nth-child(4), td:nth-child(4){ width:12%; }
+/* Desktop / tablet: five real table columns. */
+th:nth-child(1), td:nth-child(1){ width:38%; }
+th:nth-child(2), td:nth-child(2){ width:17%; }
+th:nth-child(3), td:nth-child(3){ width:17%; }
+th:nth-child(4), td:nth-child(4){ width:13%; }
 th:nth-child(5), td:nth-child(5){ width:15%; }
 
-/* The price is now column 5, not column 4. */
-td:nth-child(4){
-    white-space:nowrap;
-    font-weight:normal;
-    color:var(--text);
+.product-name{
+    padding:10px 12px;
+    vertical-align:middle;
 }
 
-td:nth-child(5){
-    white-space:nowrap;
-    font-weight:bold;
-    color:var(--green);
+.product-name .product-name-text{
+    white-space:normal;
+    overflow-wrap:break-word;
+    word-break:normal;
+    line-height:1.35;
+}
+
+.product-info{
+    min-width:0;
 }
 
 .qty-cell{
     text-align:center;
     vertical-align:middle;
     white-space:nowrap;
+    padding-left:8px;
+    padding-right:8px;
 }
 
 .qty-cell .qty-stepper{
     position:static;
     transform:none;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
+    margin:0 auto;
 }
 
-/* The stepper is now a real table cell, so it no longer overlaps
-   the product name and doesn't need absolute positioning. */
-.product-name{
-    padding-right:12px;
+.brand-cell{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:600;
+    white-space:normal;
+    overflow-wrap:break-word;
+}
+
+.pack-cell{
+    white-space:nowrap;
+    font-weight:normal;
+    color:var(--text);
+}
+
+.price-cell{
+    white-space:nowrap;
+    font-weight:bold;
+    color:var(--green);
 }
 
 .continuation-row .product-name{
-    padding-right:12px;
+    padding:8px 12px;
 }
 
+.continuation-row .product-info{
+    min-height:24px;
+    justify-content:center;
+}
+
+/* Mobile: keep all five columns usable by allowing horizontal swipe.
+   Product is deliberately wide enough for 2–3 line names. */
 @media(max-width:700px){
-    /* Intentionally wider than the phone screen. The customer can
-       swipe horizontally to see all five columns. */
     .table-scroll{
-        overflow-x:auto;
         width:100%;
+        overflow-x:auto;
         -webkit-overflow-scrolling:touch;
+        overscroll-behavior-x:contain;
     }
 
     table{
@@ -907,6 +919,7 @@ td:nth-child(5){
 
     th{
         font-size:12px;
+        letter-spacing:0;
     }
 
     th:nth-child(1), td:nth-child(1){ width:300px; }
@@ -917,12 +930,7 @@ td:nth-child(5){
 
     .product-name{
         padding:10px 9px;
-        vertical-align:middle;
-    }
-
-    .product-info{
-        min-width:0;
-        gap:4px;
+        min-height:0;
     }
 
     .product-name .product-name-text{
@@ -930,6 +938,10 @@ td:nth-child(5){
         white-space:normal;
         overflow-wrap:break-word;
         word-break:normal;
+    }
+
+    .product-info{
+        gap:4px;
     }
 
     .offer-badge,
@@ -951,17 +963,21 @@ td:nth-child(5){
         font-size:13px;
         white-space:normal;
         overflow-wrap:break-word;
+        word-break:normal;
     }
 
     .pack-cell{
         white-space:nowrap;
     }
 
-    td:nth-child(5){
+    .price-cell{
         font-size:14px;
     }
 
-    /* Keep the category banner spanning the full five-column table. */
+    .continuation-row .product-name{
+        padding:8px 9px;
+    }
+
     .category td{
         width:auto !important;
     }

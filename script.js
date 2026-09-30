@@ -208,7 +208,7 @@ fetch("products.csv", { cache: "no-store" })
 
       // ------------------------------
       // PRODUCT ROW
-      // Four displayed columns:
+      // Five displayed columns:
       // Product | Quantity | Brand | Pack Size | Price
       //
       // Column 5 in the CSV = Offer/Stock:
@@ -298,7 +298,15 @@ fetch("products.csv", { cache: "no-store" })
       const target = document.querySelector(window.location.hash);
 
       if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        // Scroll vertically without changing the horizontal position
+        // of the wide five-column catalogue table on mobile.
+        const y = target.getBoundingClientRect().top + window.scrollY - 90;
+        window.scrollTo({ top: y, behavior: "smooth" });
+
+        const tableScroll = document.querySelector(".table-scroll");
+        if (tableScroll) {
+          tableScroll.scrollTo({ left: 0, behavior: "auto" });
+        }
       }
     }
 
