@@ -1176,3 +1176,1240 @@ th:nth-child(5), td:nth-child(5){ width:15%; }
         width:auto !important;
     }
 }
+
+
+/* ==========================================================
+   STAGE 1 — PRODUCT GRID CATALOGUE
+   Product cards replace the old table.
+   Cart/order styling above remains unchanged.
+   ========================================================== */
+
+.catalogue-grid{
+    display:block;
+    width:100%;
+}
+
+.product-category{
+    scroll-margin-top:95px;
+    margin:0 0 52px;
+}
+
+.product-category[hidden]{
+    display:none;
+}
+
+.category-heading-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:20px;
+    margin:0 0 18px;
+    padding-bottom:10px;
+    border-bottom:2px solid var(--gold-light);
+}
+
+.product-category-title{
+    margin:0;
+    color:var(--green-dark);
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:clamp(24px,3vw,32px);
+    font-weight:500;
+    line-height:1.2;
+}
+
+.category-product-count{
+    flex-shrink:0;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:700;
+}
+
+.product-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:20px;
+}
+
+.product-card{
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    background:#fff;
+    border:1px solid #e8e0d0;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 5px 18px rgba(7,53,29,.07);
+    transition:transform .18s ease,box-shadow .18s ease;
+}
+
+.product-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 26px rgba(7,53,29,.11);
+}
+
+.product-image-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:1 / 1;
+    background:#f4eee2;
+    overflow:hidden;
+}
+
+.product-image{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:contain;
+    padding:14px;
+    background:#fff;
+}
+
+.product-image-placeholder{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:20px;
+    text-align:center;
+    color:var(--muted);
+    background:linear-gradient(145deg,#f8f3e8,#eee5d4);
+}
+
+.product-image-placeholder i{
+    font-size:38px;
+    color:var(--gold);
+}
+
+.product-image-placeholder span{
+    max-width:130px;
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:15px;
+    line-height:1.25;
+    color:var(--green-dark);
+}
+
+.product-badge-wrap{
+    position:absolute;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    display:flex;
+    justify-content:flex-start;
+}
+
+.product-badge-wrap .offer-badge,
+.product-badge-wrap .stock-badge{
+    max-width:100%;
+    box-shadow:0 2px 7px rgba(0,0,0,.08);
+}
+
+.product-card-body{
+    display:flex;
+    flex:1;
+    flex-direction:column;
+    padding:14px;
+}
+
+.product-card-name{
+    margin:0;
+    color:var(--text);
+    font-size:15px;
+    font-weight:700;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+    word-break:normal;
+}
+
+.product-card-brand{
+    margin:5px 0 0;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+    line-height:1.35;
+}
+
+.product-card-pack{
+    margin:3px 0 0;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.35;
+}
+
+.product-card-bottom{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-top:auto;
+    padding-top:14px;
+}
+
+.product-card-price{
+    color:var(--green);
+    font-size:17px;
+    line-height:1;
+    white-space:nowrap;
+}
+
+.product-card .qty-stepper{
+    flex-shrink:0;
+}
+
+.product-out-stock{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:30px;
+    padding:5px 9px;
+    border-radius:999px;
+    background:#eee8df;
+    color:#6b5f52;
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+    text-align:center;
+}
+
+.product-card[hidden]{
+    display:none;
+}
+
+.catalogue-error{
+    padding:30px;
+    background:#fff;
+    border:1px solid #e8e0d0;
+    border-radius:16px;
+    color:#a33;
+    text-align:center;
+}
+
+@media(max-width:1050px){
+    .product-grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+}
+
+@media(max-width:700px){
+    .category-heading-row{
+        align-items:center;
+        margin-bottom:14px;
+    }
+
+    .product-category{
+        margin-bottom:40px;
+    }
+
+    .product-category-title{
+        font-size:25px;
+    }
+
+    .product-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:12px;
+    }
+
+    .product-card{
+        border-radius:13px;
+    }
+
+    .product-card-body{
+        padding:11px;
+    }
+
+    .product-card-name{
+        font-size:13px;
+        line-height:1.3;
+    }
+
+    .product-card-brand,
+    .product-card-pack{
+        font-size:11px;
+    }
+
+    .product-card-bottom{
+        align-items:flex-start;
+        flex-direction:column;
+        gap:8px;
+        padding-top:11px;
+    }
+
+    .product-card-price{
+        font-size:16px;
+    }
+
+    .product-card .qty-stepper{
+        align-self:flex-start;
+    }
+
+    .product-image-placeholder{
+        padding:12px;
+    }
+
+    .product-image-placeholder i{
+        font-size:30px;
+    }
+
+    .product-image-placeholder span{
+        font-size:13px;
+    }
+
+    .category-product-count{
+        font-size:11px;
+    }
+}
+
+
+/* ==========================================================
+   STAGE 2 — CATEGORY SIDEBAR + MOBILE CATEGORY DRAWER
+   ========================================================== */
+
+.catalogue-layout{
+    display:grid;
+    grid-template-columns:220px minmax(0,1fr);
+    gap:28px;
+    align-items:start;
+}
+
+.category-sidebar{
+    position:sticky;
+    top:96px;
+    align-self:start;
+}
+
+.category-sidebar-inner{
+    background:#fff;
+    border:1px solid #e8e0d0;
+    border-radius:16px;
+    box-shadow:0 5px 18px rgba(7,53,29,.07);
+    overflow:hidden;
+}
+
+.category-sidebar-label{
+    margin:0;
+    padding:15px 16px 12px;
+    background:var(--green);
+    color:#fff;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:1.2px;
+}
+
+.category-sidebar-list{
+    display:flex;
+    flex-direction:column;
+    padding:7px;
+}
+
+.category-link{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:10px 10px;
+    border-radius:9px;
+    color:var(--green);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:700;
+    line-height:1.25;
+    transition:background .16s ease,color .16s ease;
+}
+
+.category-link i{
+    flex-shrink:0;
+    font-size:15px;
+    color:var(--gold);
+    transition:transform .16s ease;
+}
+
+.category-link:hover,
+.category-link:focus-visible{
+    background:var(--cream);
+    color:var(--green-dark);
+    outline:none;
+}
+
+.category-link:hover i,
+.category-link:focus-visible i{
+    transform:translateX(2px);
+}
+
+.catalogue-main{
+    min-width:0;
+}
+
+.catalogue-main #search{
+    margin-bottom:26px;
+}
+
+.mobile-category-bar,
+.mobile-category-drawer{
+    display:none;
+}
+
+@media(max-width:900px){
+    .catalogue-layout{
+        grid-template-columns:1fr;
+        gap:0;
+    }
+
+    .category-sidebar{
+        display:none;
+    }
+
+    .mobile-category-bar{
+        display:block;
+        margin-bottom:12px;
+    }
+
+    .mobile-category-btn{
+        width:100%;
+        min-height:46px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        border:1px solid #d8d0c1;
+        border-radius:10px;
+        background:#fff;
+        color:var(--green);
+        font-size:14px;
+        font-weight:800;
+        cursor:pointer;
+        box-shadow:0 3px 12px rgba(7,53,29,.06);
+    }
+
+    .mobile-category-btn:hover{
+        background:var(--cream);
+    }
+
+    .mobile-category-btn i{
+        font-size:20px;
+    }
+
+    .mobile-category-drawer{
+        position:fixed;
+        inset:0;
+        z-index:1200;
+        background:rgba(7,53,29,.28);
+        padding:0;
+    }
+
+    .mobile-category-drawer:not([hidden]){
+        display:flex;
+        justify-content:flex-start;
+    }
+
+    .mobile-category-drawer::before{
+        content:"";
+        position:absolute;
+        inset:0;
+    }
+
+    .mobile-category-drawer-header,
+    .mobile-category-list{
+        position:relative;
+        z-index:1;
+        width:min(330px,86vw);
+        background:#fff;
+    }
+
+    .mobile-category-drawer-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:17px 18px;
+        border-bottom:1px solid #e8e0d0;
+        color:var(--green-dark);
+        font-family:Georgia,'Times New Roman',serif;
+        font-size:18px;
+    }
+
+    .mobile-category-close{
+        width:34px;
+        height:34px;
+        border:0;
+        border-radius:50%;
+        background:var(--cream);
+        color:var(--green);
+        font-size:24px;
+        line-height:1;
+        cursor:pointer;
+    }
+
+    .mobile-category-list{
+        display:flex;
+        flex-direction:column;
+        gap:2px;
+        height:calc(100vh - 69px);
+        overflow-y:auto;
+        padding:10px;
+    }
+
+    .mobile-category-list .category-link{
+        padding:13px 12px;
+        font-size:14px;
+        border-radius:9px;
+    }
+
+    .mobile-category-list .category-link i{
+        font-size:17px;
+    }
+
+    body.category-drawer-open{
+        overflow:hidden;
+    }
+}
+
+@media(min-width:901px){
+    .catalogue-main .product-category:first-child{
+        margin-top:0;
+    }
+}
+
+/* ==========================================================
+   MOBILE NAV OVERRIDE — floating categories button + drawer
+   Matches the live catalogue pattern: categories bottom-left,
+   back-to-top bottom-right.
+   ========================================================== */
+@media(max-width:900px){
+    /* Remove the large Categories bar from the document flow. */
+    .mobile-category-bar{
+        display:block;
+        margin:0;
+        height:0;
+    }
+
+    /* Turn the existing Categories button into the floating circle. */
+    .mobile-category-btn{
+        position:fixed;
+        left:16px;
+        bottom:18px;
+        z-index:1150;
+        width:52px;
+        height:52px;
+        min-height:52px;
+        padding:0;
+        border-radius:50%;
+        border:2px solid var(--gold);
+        background:var(--green);
+        color:#fff;
+        box-shadow:0 8px 24px rgba(7,53,29,.22);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    }
+
+    .mobile-category-btn:hover,
+    .mobile-category-btn:focus-visible{
+        background:var(--green-dark);
+        color:#fff;
+        outline:none;
+    }
+
+    .mobile-category-btn i{
+        font-size:23px;
+        margin:0;
+    }
+
+    /* Hide the word "Categories" but keep it available to screen readers. */
+    .mobile-category-btn span{
+        position:absolute;
+        width:1px;
+        height:1px;
+        padding:0;
+        margin:-1px;
+        overflow:hidden;
+        clip:rect(0,0,0,0);
+        white-space:nowrap;
+        border:0;
+    }
+
+    /* Full-screen dim layer. The actual menu is a clean left panel. */
+    .mobile-category-drawer{
+        position:fixed;
+        inset:0;
+        z-index:1200;
+        padding:0;
+        background:rgba(7,53,29,.30);
+    }
+
+    .mobile-category-drawer:not([hidden]){
+        display:block;
+    }
+
+    .mobile-category-drawer::before{
+        content:none;
+    }
+
+    .mobile-category-drawer-header{
+        position:absolute;
+        top:0;
+        left:0;
+        z-index:2;
+        width:min(320px,86vw);
+        height:68px;
+        padding:0 16px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        background:#fff;
+        border-bottom:1px solid #e8e0d0;
+        color:var(--green-dark);
+        font-family:Georgia,'Times New Roman',serif;
+        font-size:19px;
+        font-weight:700;
+        box-shadow:none;
+    }
+
+    .mobile-category-close{
+        flex:0 0 36px;
+        width:36px;
+        height:36px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border:0;
+        border-radius:50%;
+        background:var(--cream);
+        color:var(--green);
+        font-size:24px;
+        line-height:1;
+        cursor:pointer;
+    }
+
+    .mobile-category-list{
+        position:absolute;
+        top:68px;
+        bottom:0;
+        left:0;
+        z-index:2;
+        width:min(320px,86vw);
+        height:auto;
+        overflow-y:auto;
+        padding:8px 10px 20px;
+        display:flex;
+        flex-direction:column;
+        gap:2px;
+        background:#fff;
+        -webkit-overflow-scrolling:touch;
+    }
+
+    .mobile-category-list .category-link{
+        width:100%;
+        padding:12px 10px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        border-radius:8px;
+        color:var(--green);
+        font-size:14px;
+        font-weight:700;
+        line-height:1.3;
+        white-space:normal;
+        overflow-wrap:anywhere;
+    }
+
+    /* Keep back-to-top symmetrical on the opposite side. */
+    .back-to-top{
+        right:16px;
+        bottom:18px;
+        width:52px;
+        height:52px;
+    }
+
+    /* Cart sits above back-to-top so the two controls never collide. */
+    .order-fab{
+        right:16px;
+        bottom:84px;
+    }
+
+    .order-panel{
+        right:16px;
+        bottom:144px;
+    }
+}
+
+/* ==========================================================
+   MOBILE FLOATING CONTROLS — final arrangement
+   Categories: bottom-left
+   Cart: bottom-right when items are added
+   Back-to-top: hidden on mobile (finger scrolling is enough)
+   ========================================================== */
+@media(max-width:900px){
+    .back-to-top{
+        display:none !important;
+    }
+
+    .order-fab,
+    .order-fab.show{
+        right:16px;
+        bottom:18px;
+        width:52px;
+        height:52px;
+        z-index:1160;
+    }
+
+    .order-fab.show{
+        display:flex !important;
+    }
+}
+
+/* ==========================================================
+   MOBILE FIXES — final floating controls + prevent page drift
+   ========================================================== */
+html, body{
+    max-width:100%;
+    overflow-x:clip;
+}
+
+@media(max-width:900px){
+    /* No back-to-top button on mobile. Finger scrolling is enough. */
+    .back-to-top{
+        display:none !important;
+    }
+
+    /* The floating buttons belong to the viewport, not the catalogue layout. */
+    .mobile-category-bar{
+        position:static !important;
+        width:0 !important;
+        height:0 !important;
+        margin:0 !important;
+        padding:0 !important;
+    }
+
+    .mobile-category-btn{
+        position:fixed !important;
+        left:16px !important;
+        right:auto !important;
+        bottom:18px !important;
+        width:52px !important;
+        height:52px !important;
+        min-height:52px !important;
+        margin:0 !important;
+        padding:0 !important;
+        z-index:1300 !important;
+        border-radius:50% !important;
+    }
+
+    .order-fab,
+    .order-fab.show{
+        position:fixed !important;
+        right:16px !important;
+        left:auto !important;
+        bottom:18px !important;
+        width:52px !important;
+        height:52px !important;
+        z-index:1300 !important;
+    }
+
+    .order-panel{
+        right:16px !important;
+        left:auto !important;
+        max-width:calc(100vw - 32px) !important;
+    }
+
+    /* Keep the mobile grid strictly inside the viewport. */
+    .catalogue-layout,
+    .catalogue-main,
+    .catalogue-grid,
+    .product-category,
+    .product-grid{
+        max-width:100%;
+        min-width:0;
+    }
+
+    .product-grid{
+        width:100%;
+    }
+
+    /* Never allow long category names or card content to create page-wide overflow. */
+    .product-card,
+    .product-card-body,
+    .product-card-name,
+    .category-heading-row,
+    .product-category-title{
+        min-width:0;
+        max-width:100%;
+    }
+}
+
+
+/* ==========================================================
+   STAGE 2 POLISH — fixed desktop categories + compact mobile menu
+   ========================================================== */
+
+@media(min-width:901px){
+    /* Keep the category navigation visibly in place while the catalogue scrolls. */
+    .catalogue-layout{
+        position:relative;
+        grid-template-columns:220px minmax(0,1fr);
+        align-items:start;
+    }
+
+    .category-sidebar{
+        position:sticky !important;
+        top:96px !important;
+        align-self:start !important;
+        height:max-content !important;
+        z-index:20;
+    }
+
+    .category-sidebar-inner{
+        height:max-content;
+    }
+}
+
+@media(max-width:900px){
+    /* Match the compact category typography used on the live catalogue. */
+    .mobile-category-drawer-header{
+        width:min(320px,86vw);
+        height:64px;
+        padding:0 16px;
+        font-family:Georgia,'Times New Roman',serif;
+        font-size:18px;
+        font-weight:700;
+    }
+
+    .mobile-category-list{
+        width:min(320px,86vw);
+        top:64px;
+        padding:8px 10px 18px;
+        gap:1px;
+    }
+
+    .mobile-category-list .category-link{
+        padding:10px 6px;
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:14px !important;
+        font-weight:700;
+        line-height:1.3;
+        letter-spacing:0;
+        border-radius:7px;
+    }
+
+    .mobile-category-list .category-link i{
+        font-size:15px;
+    }
+}
+
+/* ==========================================================
+   FINAL CATEGORY NAV FIX v5
+   Desktop: keep category navigation pinned while catalogue scrolls.
+   Mobile: compact typography matching the live catalogue.
+   ========================================================== */
+
+@media (min-width:901px){
+    .catalogue-layout{
+        position:relative !important;
+        display:grid !important;
+        grid-template-columns:220px minmax(0,1fr) !important;
+        gap:28px !important;
+        align-items:start !important;
+    }
+
+    .category-sidebar{
+        position:sticky !important;
+        top:96px !important;
+        align-self:start !important;
+        height:max-content !important;
+        max-height:calc(100vh - 116px) !important;
+        overflow-y:auto !important;
+        z-index:50 !important;
+    }
+
+    .category-sidebar-inner{
+        position:relative !important;
+        height:max-content !important;
+    }
+
+    .catalogue-main{
+        min-width:0 !important;
+        grid-column:2 !important;
+    }
+}
+
+@media (max-width:900px){
+    /* The floating Categories button remains only a button, never a bar. */
+    .mobile-category-bar{
+        position:static !important;
+        display:block !important;
+        width:0 !important;
+        height:0 !important;
+        margin:0 !important;
+        padding:0 !important;
+    }
+
+    .mobile-category-btn{
+        position:fixed !important;
+        left:16px !important;
+        bottom:18px !important;
+        width:52px !important;
+        height:52px !important;
+        min-height:52px !important;
+        padding:0 !important;
+        z-index:1300 !important;
+    }
+
+    /* Compact live-site-style category drawer. */
+    .mobile-category-drawer-header{
+        width:min(320px,86vw) !important;
+        height:58px !important;
+        padding:0 16px !important;
+        font-family:Arial,Helvetica,sans-serif !important;
+        font-size:16px !important;
+        font-weight:700 !important;
+        line-height:1.2 !important;
+    }
+
+    .mobile-category-close{
+        width:32px !important;
+        height:32px !important;
+        flex-basis:32px !important;
+        font-size:21px !important;
+    }
+
+    .mobile-category-list{
+        width:min(320px,86vw) !important;
+        top:58px !important;
+        padding:6px 10px 16px !important;
+        gap:0 !important;
+    }
+
+    .mobile-category-list .category-link{
+        padding:10px 6px !important;
+        font-family:Arial,Helvetica,sans-serif !important;
+        font-size:14px !important;
+        font-weight:700 !important;
+        line-height:1.25 !important;
+        letter-spacing:0 !important;
+        border-radius:6px !important;
+    }
+
+    .mobile-category-list .category-link i{
+        font-size:14px !important;
+        color:var(--gold) !important;
+    }
+}
+
+
+/* FINAL NAVIGATION + BACK-TO-TOP OVERRIDE */
+
+/* Desktop: no mobile hamburger; restore compact category pills/panel. */
+@media (min-width:901px){
+  .mobile-category-bar,
+  .mobile-category-btn,
+  .mobile-category-drawer{
+    display:none !important;
+  }
+
+  .category-sidebar{
+    display:block !important;
+    position:sticky !important;
+    top:96px !important;
+    align-self:start !important;
+  }
+
+  .category-sidebar-inner{
+    background:#fff !important;
+    border:1px solid #e8e0d0 !important;
+    border-radius:16px !important;
+    box-shadow:0 5px 18px rgba(7,53,29,.07) !important;
+    overflow:hidden !important;
+  }
+
+  .category-sidebar-label{
+    background:var(--green) !important;
+    color:#fff !important;
+    font-size:11px !important;
+    font-weight:800 !important;
+    letter-spacing:1.2px !important;
+  }
+
+  .category-sidebar-list{
+    padding:7px !important;
+  }
+
+  .category-sidebar-list .category-link{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    padding:10px 10px !important;
+    border-radius:9px !important;
+    color:var(--green) !important;
+    background:transparent !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+    text-decoration:none !important;
+  }
+
+  .category-sidebar-list .category-link:hover,
+  .category-sidebar-list .category-link:focus-visible{
+    background:var(--cream) !important;
+    color:var(--green-dark) !important;
+  }
+}
+
+/* Mobile: floating Categories button only. */
+@media (max-width:900px){
+  .mobile-category-bar{
+    display:block !important;
+    height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  .mobile-category-btn{
+    display:flex !important;
+    position:fixed !important;
+    left:16px !important;
+    bottom:18px !important;
+    width:52px !important;
+    height:52px !important;
+    min-height:52px !important;
+    padding:0 !important;
+    border-radius:50% !important;
+    border:2px solid var(--gold) !important;
+    background:var(--green) !important;
+    color:#fff !important;
+    z-index:1300 !important;
+  }
+
+  .mobile-category-btn i{
+    font-size:23px !important;
+    margin:0 !important;
+  }
+
+  /* Compact live-site-style drawer text. */
+  .mobile-category-drawer-header{
+    width:min(320px,86vw) !important;
+    font-size:18px !important;
+    padding:17px 16px !important;
+  }
+
+  .mobile-category-list{
+    width:min(320px,86vw) !important;
+    padding:8px 10px 18px !important;
+    gap:1px !important;
+  }
+
+  .mobile-category-list .category-link{
+    padding:10px 12px !important;
+    font-family:Arial,Helvetica,sans-serif !important;
+    font-size:14px !important;
+    font-weight:700 !important;
+    line-height:1.25 !important;
+    border-radius:8px !important;
+  }
+
+  /* Cart and back-to-top share the bottom-right position. */
+  .back-to-top{
+    display:flex !important;
+    right:16px !important;
+    bottom:18px !important;
+    width:52px !important;
+    height:52px !important;
+  }
+
+  .order-fab, .order-fab.show{
+    right:16px !important;
+    bottom:18px !important;
+  }
+
+  /* When the cart is visible, keep Back to Top above it rather than overlapping. */
+  .order-fab.show ~ .back-to-top{
+    bottom:82px !important;
+  }
+}
+
+/* Keep the back-to-top button available on desktop too. */
+.back-to-top.show{
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+}
+
+
+/* ==========================================================
+   FINAL DESKTOP CATEGORY POSITION
+   Keep the category navigation in its normal starting position,
+   then keep it visible as the page scrolls. Mobile is untouched.
+   ========================================================== */
+@media (min-width:901px){
+    .catalogue-layout{
+        display:grid !important;
+        grid-template-columns:220px minmax(0,1fr) !important;
+        gap:28px !important;
+        align-items:start !important;
+    }
+
+    .category-sidebar{
+        position:sticky !important;
+        top:96px !important;
+        left:auto !important;
+        width:220px !important;
+        height:max-content !important;
+        max-height:none !important;
+        overflow:visible !important;
+        align-self:start !important;
+        z-index:50 !important;
+    }
+
+    .category-sidebar-inner{
+        width:220px !important;
+        height:max-content !important;
+    }
+}
+
+/* Mobile: leave the floating Categories button and drawer exactly
+   as they are. The desktop sticky rules above do not apply below 901px. */
+
+
+/* ==========================================================
+   STAGE 4 — STICKY SEARCH (built from the working Stage 3 CSS)
+   Keep the existing desktop category sidebar behaviour intact.
+   The search box stays available while the product catalogue scrolls.
+   ========================================================== */
+
+/* Make sure no catalogue wrapper creates a clipping/scrolling context
+   that can interfere with position: sticky. */
+.catalogue-section,
+.catalogue-section > .section-inner,
+.catalogue-layout,
+.catalogue-main{
+    overflow:visible !important;
+}
+
+@media (min-width:901px){
+    /* Preserve the working desktop category sidebar. */
+    .category-sidebar{
+        position:-webkit-sticky !important;
+        position:sticky !important;
+        top:96px !important;
+        align-self:start !important;
+        height:max-content !important;
+        max-height:none !important;
+        overflow:visible !important;
+    }
+
+    .category-sidebar-inner{
+        overflow:hidden !important;
+    }
+
+    /* Search remains directly below the sticky site header. */
+    .catalogue-main #search{
+        position:-webkit-sticky !important;
+        position:sticky !important;
+        top:76px !important;
+        z-index:900 !important;
+        background:#fff !important;
+        margin-top:0 !important;
+        margin-bottom:26px !important;
+        box-shadow:0 3px 12px rgba(7,53,29,.08) !important;
+    }
+}
+
+@media (max-width:900px){
+    /* Keep the existing mobile floating category button/drawer exactly as-is. */
+    .category-sidebar{
+        display:none !important;
+    }
+
+    /* Search stays just below the mobile header while scrolling. */
+    .catalogue-main #search{
+        position:-webkit-sticky !important;
+        position:sticky !important;
+        top:68px !important;
+        z-index:900 !important;
+        background:#fff !important;
+        margin-top:0 !important;
+        margin-bottom:18px !important;
+        box-shadow:0 3px 12px rgba(7,53,29,.08) !important;
+    }
+}
+
+/* ==========================================================
+   STAGE 5 — PRODUCT CARD POLISH
+   Visual-only refinements. Do not alter catalogue logic,
+   category navigation, sticky search, or cart behaviour.
+   ========================================================== */
+
+/* Keep product imagery visually consistent across the catalogue. */
+.product-image-wrap{
+    aspect-ratio:1 / 1;
+    background:#fff;
+}
+
+.product-image{
+    padding:12px;
+}
+
+/* Give product information a little more breathing room. */
+.product-card-body{
+    padding:15px;
+}
+
+.product-card-name{
+    min-height:2.7em;
+}
+
+.product-card-brand,
+.product-card-pack{
+    overflow-wrap:anywhere;
+}
+
+/* Make prices easy to scan without changing their existing styling. */
+.product-card-price{
+    font-weight:800;
+}
+
+/* Make offer/stock badges sit neatly on product images. */
+.product-badge-wrap{
+    left:9px;
+    right:9px;
+    bottom:9px;
+}
+
+/* Slightly stronger touch targets on phones. */
+@media(max-width:700px){
+    .product-card-body{
+        padding:11px;
+    }
+
+    .product-card-name{
+        min-height:0;
+    }
+
+    .product-card .qty-btn{
+        width:27px;
+        height:27px;
+        font-size:16px;
+    }
+
+    .product-card .qty-value{
+        min-width:22px;
+        font-size:13px;
+    }
+
+    .product-image{
+        padding:9px;
+    }
+
+    .product-badge-wrap{
+        left:7px;
+        right:7px;
+        bottom:7px;
+    }
+}
+
+/* On wider desktop screens, keep the cards comfortable rather than oversized. */
+@media(min-width:1200px){
+    .product-grid{
+        gap:22px;
+    }
+}

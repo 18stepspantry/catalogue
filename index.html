@@ -41,36 +41,46 @@
 <section class="section catalogue-hero"><div class="section-inner section-heading centered">
   <p class="section-label">OUR PRODUCTS</p>
   <h2>Product Catalogue</h2>
-  <p>Browse everything we stock, add to cart and click Submit Order.<p>
-  <p>Use the search box below to find a product by name.</p>
+  <p>Browse our products, choose your quantities and add them to your order.</p>
+  <p>Use the search box below to find a product by name, brand or pack size.</p>
 </div></section>
 
 <section class="section catalogue-section"><div class="section-inner">
 
-  <input
-    type="text"
-    id="search"
-    placeholder="Search products...">
+  <div class="catalogue-layout">
 
-  <nav id="categoryNav" class="category-nav" aria-label="Jump to category"></nav>
+    <aside class="category-sidebar" aria-label="Product categories">
+      <div class="category-sidebar-inner">
+        <p class="category-sidebar-label">SHOP BY CATEGORY</p>
+        <nav id="categorySidebarList" class="category-sidebar-list" aria-label="Product categories"></nav>
+      </div>
+    </aside>
 
-  <div class="table-scroll">
-  <table id="catalogue">
+    <div class="catalogue-main">
+      <div class="mobile-category-bar">
+        <button type="button" id="mobileCategoryBtn" class="mobile-category-btn" aria-expanded="false" aria-controls="mobileCategoryDrawer">
+          <i class="ti ti-menu-2" aria-hidden="true"></i>
+          <span>Categories</span>
+        </button>
+      </div>
 
-    <thead>
-      <tr>
-        <th>Product</th>
-        <th>Brand</th>
-        <th>Pack Size</th>
-        <th>Price</th>
-      </tr>
-    </thead>
+      <div id="mobileCategoryDrawer" class="mobile-category-drawer" hidden>
+        <div class="mobile-category-drawer-header">
+          <strong>Shop by category</strong>
+          <button type="button" id="mobileCategoryClose" class="mobile-category-close" aria-label="Close categories">×</button>
+        </div>
+        <nav id="mobileCategoryList" class="mobile-category-list" aria-label="Product categories"></nav>
+      </div>
 
-    <tbody>
+      <input
+        type="text"
+        id="search"
+        placeholder="Search products..."
+        aria-label="Search products">
 
-    </tbody>
+      <div id="catalogueGrid" class="catalogue-grid" aria-live="polite"></div>
+    </div>
 
-  </table>
   </div>
 
 </div></section>
@@ -87,14 +97,6 @@
   </div>
   <p class="copyright">© 18 Steps Pantry &amp; Spices</p>
 </div></footer>
-
-<button id="categoryFabBtn" class="category-fab" aria-label="Jump to category" aria-expanded="false">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="14" y2="18"></line></svg>
-</button>
-<div id="categoryFabMenu" class="category-fab-menu" hidden>
-  <p class="category-fab-title">Jump to category</p>
-  <div id="categoryFabList"></div>
-</div>
 
 <a href="#" class="back-to-top" id="backToTop" aria-label="Back to top" title="Back to top">↑</a>
 
@@ -121,29 +123,9 @@ if(backToTop){
   updateBackToTop();
 }
 
-const categoryFabBtn=document.getElementById('categoryFabBtn'),categoryFabMenu=document.getElementById('categoryFabMenu');
-if(categoryFabBtn&&categoryFabMenu){
-  const closeFabMenu=()=>{categoryFabMenu.hidden=true;categoryFabBtn.setAttribute('aria-expanded','false');};
-  const openFabMenu=()=>{categoryFabMenu.hidden=false;categoryFabBtn.setAttribute('aria-expanded','true');};
-  categoryFabBtn.addEventListener('click',(e)=>{
-    e.stopPropagation();
-    categoryFabMenu.hidden?openFabMenu():closeFabMenu();
-  });
-  document.addEventListener('click',(e)=>{
-    if(!categoryFabMenu.hidden&&!categoryFabMenu.contains(e.target)&&e.target!==categoryFabBtn){
-      closeFabMenu();
-    }
-  });
-  categoryFabMenu.addEventListener('click',(e)=>{
-    if(e.target.tagName==='A'){closeFabMenu();}
-  });
-  document.addEventListener('keydown',(e)=>{
-    if(e.key==='Escape'){closeFabMenu();}
-  });
-}
 </script>
 
-<script src="script.js?v=9"></script>
+<script src="script.js?v=5"></script>
 
 </body>
 </html>

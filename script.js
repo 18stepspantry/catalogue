@@ -8,28 +8,8 @@ fetch("products.csv", { cache: "no-store" })
   })
 
   .then(text => {
-    const tbody = document.querySelector("#catalogue tbody");
+    const catalogueGrid = document.querySelector("#catalogueGrid");
     const searchBox = document.getElementById("search");
-
-    // The catalogue is a five-column table:
-    // Product | Quantity | Brand | Pack Size | Price
-    // Older index.html versions had only four header cells.
-    // Always rebuild the header here so the headings can never
-    // become shifted relative to the five product cells.
-    const catalogueTable = document.getElementById("catalogue");
-    const catalogueHead = catalogueTable?.querySelector("thead");
-
-    if (catalogueHead) {
-      catalogueHead.innerHTML = `
-        <tr>
-          <th scope="col">Product</th>
-          <th scope="col">Quantity</th>
-          <th scope="col">Brand</th>
-          <th scope="col">Pack Size</th>
-          <th scope="col">Price</th>
-        </tr>
-      `;
-    }
 
     // ------------------------------
     // CSV PARSER
@@ -44,43 +24,33 @@ fetch("products.csv", { cache: "no-store" })
       for (let i = 0; i < csv.length; i++) {
         const character = csv[i];
 
-        // Handle quotation marks.
         if (character === '"') {
-          // Two quotation marks inside a quoted field = one quotation mark.
           if (inQuotes && csv[i + 1] === '"') {
             field += '"';
             i++;
           } else {
             inQuotes = !inQuotes;
           }
-
           continue;
         }
 
-        // A comma ends a field when outside quotation marks.
         if (character === "," && !inQuotes) {
           row.push(field.trim());
           field = "";
           continue;
         }
 
-        // A line break ends a row when outside quotation marks.
         if (
           (character === "\n" || character === "\r") &&
           !inQuotes
         ) {
-          // Treat Windows line endings (\r\n) as one line break.
-          if (
-            character === "\r" &&
-            csv[i + 1] === "\n"
-          ) {
+          if (character === "\r" && csv[i + 1] === "\n") {
             i++;
           }
 
           row.push(field.trim());
           field = "";
 
-          // Ignore completely blank rows.
           if (row.some(cell => cell !== "")) {
             rows.push(row);
           }
@@ -92,7 +62,6 @@ fetch("products.csv", { cache: "no-store" })
         field += character;
       }
 
-      // Add the final row if the file does not end with a line break.
       if (field.length > 0 || row.length > 0) {
         row.push(field.trim());
 
@@ -106,8 +75,6 @@ fetch("products.csv", { cache: "no-store" })
 
     // ------------------------------
     // SAFELY DISPLAY CSV TEXT
-    // Prevents product names containing HTML
-    // from being interpreted as webpage code.
     // ------------------------------
     function escapeHTML(value) {
       return String(value)
@@ -118,11 +85,6 @@ fetch("products.csv", { cache: "no-store" })
         .replaceAll("'", "&#039;");
     }
 
-    // ------------------------------
-    // SLUGIFY CATEGORY NAMES
-    // Turns "RAVA/FLOUR/DAL" into "cat-rava-flour-dal"
-    // so category rows can be linked to directly.
-    // ------------------------------
     function slugify(value) {
       return "cat-" + String(value)
         .toLowerCase()
@@ -131,24 +93,36 @@ fetch("products.csv", { cache: "no-store" })
         .replace(/^-+|-+$/g, "");
     }
 
-    // ------------------------------
-    // FORMAT PRICE
-    // Always shows exactly 2 decimals with a $ sign,
-    // no matter how the number was typed in the CSV
-    // (5, 5.0, and 5.00 all display as $5.00).
-    // ------------------------------
+    function productSlug(value) {
+      return String(value)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     function formatPrice(value) {
       const num = parseFloat(value);
       if (isNaN(num)) return null;
       return `$${num.toFixed(2)}`;
     }
 
-    const rows = parseCSV(text);
+    function placeholderImage() {
+      return `
+        <div class="product-image-placeholder" aria-label="Image coming soon">
+          <i class="ti ti-camera-off" aria-hidden="true"></i>
+          <span>Image coming soon</span>
+        </div>
+      `;
+    }
 
-    let html = "";
+    const rows = parseCSV(text);
     const categories = [];
+    let currentCategory = null;
     let currentProduct = "";
     let currentBrand = "";
+    let categoryHTML = "";
+    let productCount = 0;
 
     rows.forEach(columns => {
       let product = (columns[0] || "").trim();
@@ -156,12 +130,13 @@ fetch("products.csv", { cache: "no-store" })
       const packSize = (columns[2] || "").trim();
       const priceRaw = (columns[3] || "").trim();
       const offer = (columns[4] || "").trim();
+      // Column F contains only the image filename, e.g. black-rice.jpg.
+      // Images are stored under images/products/<category-folder>/.
+      const imageFile = (columns[5] || "").trim();
 
       const productLower = product.toLowerCase();
 
-      // ------------------------------
-      // IGNORE TITLE AND HEADER ROWS
-      // ------------------------------
+      // Ignore title/header rows.
       if (
         productLower.includes("18 steps") ||
         productLower === "product" ||
@@ -170,10 +145,7 @@ fetch("products.csv", { cache: "no-store" })
         return;
       }
 
-      // ------------------------------
-      // CATEGORY ROW
       // A category has text only in column 1.
-      // ------------------------------
       if (
         product !== "" &&
         brand === "" &&
@@ -181,29 +153,32 @@ fetch("products.csv", { cache: "no-store" })
         priceRaw === "" &&
         offer === ""
       ) {
-        html += `
-          <tr class="category" id="${slugify(product)}">
-            <td colspan="5">${escapeHTML(product)}</td>
-          </tr>
-        `;
+        if (currentCategory) {
+          categoryHTML += `</div></section>`;
+        }
 
-        categories.push({
+        currentCategory = {
           name: product,
           slug: slugify(product)
-        });
+        };
+
+        categories.push(currentCategory);
+
+        categoryHTML += `
+          <section class="product-category" id="${currentCategory.slug}" data-category="${escapeHTML(product.toLowerCase())}">
+            <div class="category-heading-row">
+              <h2 class="product-category-title">${escapeHTML(product)}</h2>
+              <span class="category-product-count" data-category-count>0 products</span>
+            </div>
+            <div class="product-grid">
+        `;
 
         currentProduct = "";
         currentBrand = "";
         return;
       }
 
-      // ------------------------------
-      // BLANK PRODUCT = CONTINUATION ROW
-      // A blank product name inherits the product and brand
-      // from the immediately preceding product row.
-      // This lets one product have multiple pack-size variants
-      // without repeating the product name in the CSV.
-      // ------------------------------
+      // Blank Product = continuation row. The product/brand is inherited.
       const isContinuation = product === "";
 
       if (isContinuation) {
@@ -213,29 +188,18 @@ fetch("products.csv", { cache: "no-store" })
         }
       }
 
-      // Ignore genuinely invalid rows.
       if (
+        !currentCategory ||
         product === "" ||
         (packSize === "" && priceRaw === "")
       ) {
         return;
       }
 
-      // Remember the current product/brand for the next
-      // continuation row.
       currentProduct = product;
       currentBrand = brand;
 
-      // ------------------------------
-      // PRODUCT ROW
-      // Five displayed columns:
-      // Product | Quantity | Brand | Pack Size | Price
-      //
-      // Column 5 in the CSV = Offer/Stock:
-      // - exactly "Out of Stock" -> grey badge, no stepper
-      // - anything else non-blank -> gold offer badge
-      // ------------------------------
-      const isOutOfStock = offer.trim().toLowerCase() === "out of stock";
+      const isOutOfStock = offer.toLowerCase() === "out of stock";
       const price = formatPrice(priceRaw);
       const priceValue = isNaN(parseFloat(priceRaw)) ? 0 : parseFloat(priceRaw);
 
@@ -246,7 +210,9 @@ fetch("products.csv", { cache: "no-store" })
         badge = `<span class="offer-badge" title="${escapeHTML(offer)}">${escapeHTML(offer)}</span>`;
       }
 
-      const stepper = isOutOfStock ? "" : `
+      const stepper = isOutOfStock ? `
+        <span class="product-out-stock">Out of stock</span>
+      ` : `
         <span class="qty-stepper"
               data-name="${escapeHTML(product)}"
               data-brand="${escapeHTML(brand)}"
@@ -258,51 +224,107 @@ fetch("products.csv", { cache: "no-store" })
         </span>
       `;
 
-      const productDisplay = isContinuation
-        ? `<span class="continuation-mark" aria-hidden="true">↳</span>`
-        : `<span class="product-name-text">${escapeHTML(product)}</span>`;
+      // Stage 3: Column F contains only the image filename.
+      // The folder is determined from the category name, so the CSV stays simple.
+      // Example: rice + black-rice.jpg -> images/products/rice/black-rice.jpg
+      const categoryFolderMap = {
+        "RICE": "rice",
+        "MILLETS": "millets",
+        "RAVA/FLOUR/DAL": "rava-flour-dal",
+        "VEGETABLE FRYUMS/PAPADS": "vegetable-fryums-papads",
+        "SPICES (WHOLE/GRIND)": "spices",
+        "OIL/GHEE": "oil-ghee",
+        "MASALA POWDERS": "masala-powders",
+        "VERMICELLI": "vermicelli",
+        "COFFEE/TEA/DRINKS": "coffee-tea-drinks",
+        "SNACKS and SWEETS": "snacks-sweets"
+      };
 
-      html += `
-        <tr class="product-row${isContinuation ? " continuation-row" : ""}" data-product="${escapeHTML(product.toLowerCase())}">
-          <td class="product-name">
-            <span class="product-info">
-              ${productDisplay}
-              ${badge}
-            </span>
-          </td>
-          <td class="qty-cell">${stepper}</td>
-          <td class="brand-cell">${escapeHTML(brand)}</td>
-          <td class="pack-cell">${escapeHTML(packSize)}</td>
-          <td class="price-cell">${price !== null ? price : ""}</td>
-        </tr>
+      const categoryFolder = categoryFolderMap[currentCategory.name] || slugify(currentCategory.name).replace(/^cat-/, "");
+      const imagePath = imageFile
+        ? `images/products/${categoryFolder}/${imageFile}`
+        : "";
+
+      const imageHTML = imagePath
+        ? `<img class="product-image" src="${escapeHTML(imagePath)}" alt="${escapeHTML(product)}" loading="lazy" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+           <div class="product-image-placeholder" aria-label="Image coming soon" hidden>
+             <i class="ti ti-camera-off" aria-hidden="true"></i>
+             <span>Image coming soon</span>
+           </div>`
+        : placeholderImage();
+
+      // Display-only formatting: add a little breathing room around slashes
+      // so long names such as "Karamanialasandalu/Vanpa Alasande Kalu"
+      // have natural wrapping points. The original product value is kept
+      // unchanged for cart/search/order data.
+      const displayProduct = product.replace(/\s*\/\s*/g, " / ");
+
+      categoryHTML += `
+        <article class="product-card"
+                 data-product="${escapeHTML(product.toLowerCase())}"
+                 data-brand="${escapeHTML(brand.toLowerCase())}"
+                 data-pack="${escapeHTML(packSize.toLowerCase())}">
+          <div class="product-image-wrap">
+            ${imageHTML}
+            ${badge ? `<div class="product-badge-wrap">${badge}</div>` : ""}
+          </div>
+
+          <div class="product-card-body">
+            <h3 class="product-card-name">${escapeHTML(displayProduct)}</h3>
+            ${brand ? `<p class="product-card-brand">${escapeHTML(brand)}</p>` : ""}
+            ${packSize ? `<p class="product-card-pack">${escapeHTML(packSize)}</p>` : ""}
+
+            <div class="product-card-bottom">
+              <strong class="product-card-price">${price !== null ? price : ""}</strong>
+              ${stepper}
+            </div>
+          </div>
+        </article>
       `;
+
+      productCount++;
     });
 
-    tbody.innerHTML = html;
-
-    // ------------------------------
-    // CATEGORY QUICK-JUMP NAV
-    // A row of pill links, one per category,
-    // that scroll straight to that section.
-    // ------------------------------
-    const categoryNav = document.getElementById("categoryNav");
-
-    if (categoryNav && categories.length > 0) {
-      categoryNav.innerHTML = categories
-        .map(category =>
-          `<a href="#${category.slug}" class="category-pill">${escapeHTML(category.name)}</a>`
-        )
-        .join("");
+    if (currentCategory) {
+      categoryHTML += `</div></section>`;
     }
 
-    const categoryFabList = document.getElementById("categoryFabList");
+    if (catalogueGrid) {
+      catalogueGrid.innerHTML = categoryHTML;
 
-    if (categoryFabList && categories.length > 0) {
-      categoryFabList.innerHTML = categories
-        .map(category =>
-          `<a href="#${category.slug}">${escapeHTML(category.name)}</a>`
-        )
-        .join("");
+      catalogueGrid.querySelectorAll(".product-category").forEach(section => {
+        const count = section.querySelectorAll(".product-card").length;
+        const countEl = section.querySelector("[data-category-count]");
+        if (countEl) {
+          countEl.textContent = `${count} ${count === 1 ? "product" : "products"}`;
+        }
+      });
+    }
+
+    // ------------------------------
+    // CATEGORY NAVIGATION
+    // Stage 2 uses a permanent desktop sidebar and a
+    // hamburger-style drawer on mobile. Both are generated
+    // from the same category list in products.csv.
+    // ------------------------------
+    const categorySidebarList = document.getElementById("categorySidebarList");
+    const mobileCategoryList = document.getElementById("mobileCategoryList");
+
+    const categoryLinksHTML = categories
+      .map(category =>
+        `<a href="#${category.slug}" class="category-link">
+          <span>${escapeHTML(category.name)}</span>
+          <i class="ti ti-chevron-right" aria-hidden="true"></i>
+        </a>`
+      )
+      .join("");
+
+    if (categorySidebarList && categories.length > 0) {
+      categorySidebarList.innerHTML = categoryLinksHTML;
+    }
+
+    if (mobileCategoryList && categories.length > 0) {
+      mobileCategoryList.innerHTML = categoryLinksHTML;
     }
 
     // ------------------------------
@@ -321,15 +343,6 @@ fetch("products.csv", { cache: "no-store" })
     // ------------------------------
     function jumpToCategory(target) {
       if (!target) return;
-
-      const tableScroll = document.querySelector(".table-scroll");
-
-      if (tableScroll) {
-        tableScroll.scrollTo({
-          left: 0,
-          behavior: "auto"
-        });
-      }
 
       const y =
         target.getBoundingClientRect().top +
@@ -371,16 +384,45 @@ fetch("products.csv", { cache: "no-store" })
     }
 
     document
-      .querySelectorAll("#categoryNav a[href^='#'], #categoryFabList a[href^='#']")
+      .querySelectorAll("#categorySidebarList a[href^='#'], #mobileCategoryList a[href^='#']")
       .forEach(link => {
         link.addEventListener("click", handleCategoryClick);
       });
 
-    // Always start the wide table at its left edge after rendering.
-    const tableScrollAfterRender = document.querySelector(".table-scroll");
-    if (tableScrollAfterRender) {
-      tableScrollAfterRender.scrollLeft = 0;
+    // ------------------------------
+    // MOBILE CATEGORY DRAWER
+    // ------------------------------
+    const mobileCategoryBtn = document.getElementById("mobileCategoryBtn");
+    const mobileCategoryDrawer = document.getElementById("mobileCategoryDrawer");
+    const mobileCategoryClose = document.getElementById("mobileCategoryClose");
+
+    function closeMobileCategories() {
+      if (!mobileCategoryDrawer) return;
+      mobileCategoryDrawer.hidden = true;
+      mobileCategoryBtn?.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("category-drawer-open");
     }
+
+    function openMobileCategories() {
+      if (!mobileCategoryDrawer) return;
+      mobileCategoryDrawer.hidden = false;
+      mobileCategoryBtn?.setAttribute("aria-expanded", "true");
+      document.body.classList.add("category-drawer-open");
+    }
+
+    mobileCategoryBtn?.addEventListener("click", () => {
+      mobileCategoryDrawer?.hidden ? openMobileCategories() : closeMobileCategories();
+    });
+
+    mobileCategoryClose?.addEventListener("click", closeMobileCategories);
+
+    mobileCategoryList?.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", closeMobileCategories);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeMobileCategories();
+    });
 
     // ============================================================
     // ORDER BUILDER
@@ -436,7 +478,14 @@ fetch("products.csv", { cache: "no-store" })
 
       if (orderFabBtn && orderFabCount) {
         orderFabCount.textContent = count;
-        orderFabBtn.classList.toggle("show", count > 0);
+
+        // Keep the floating cart reliably visible whenever there
+        // is at least one item, even if another CSS rule affects
+        // the button's display state.
+        const hasItems = count > 0;
+        orderFabBtn.classList.toggle("show", hasItems);
+        orderFabBtn.style.display = hasItems ? "flex" : "none";
+        orderFabBtn.setAttribute("aria-hidden", hasItems ? "false" : "true");
       }
     }
 
@@ -778,59 +827,38 @@ fetch("products.csv", { cache: "no-store" })
 
     // ------------------------------
     // SEARCH
-    // Searches PRODUCT NAMES ONLY.
-    // Category names are not searched.
-    // Categories with no matching products
-    // are hidden automatically.
+    // Searches product name, brand and pack size.
+    // Categories with no matching products are hidden automatically.
     // ------------------------------
     if (searchBox) {
       searchBox.addEventListener("input", function () {
-        const searchTerm = this.value
-          .trim()
-          .toLowerCase();
+        const searchTerm = this.value.trim().toLowerCase();
 
-        const tableRows = [
-          ...tbody.querySelectorAll("tr")
-        ];
+        document.querySelectorAll(".product-category").forEach(section => {
+          let visibleCount = 0;
 
-        let activeCategory = null;
-        let categoryHasMatch = false;
+          section.querySelectorAll(".product-card").forEach(card => {
+            const haystack = [
+              card.dataset.product || "",
+              card.dataset.brand || "",
+              card.dataset.pack || ""
+            ].join(" ");
 
-        tableRows.forEach(row => {
-          // When a new category starts, finish checking
-          // the previous category.
-          if (row.classList.contains("category")) {
-            if (activeCategory) {
-              activeCategory.style.display =
-                categoryHasMatch ? "" : "none";
-            }
+            const matches = searchTerm === "" || haystack.includes(searchTerm);
+            card.hidden = !matches;
 
-            activeCategory = row;
-            categoryHasMatch = false;
+            if (matches) visibleCount++;
+          });
 
-            return;
-          }
+          section.hidden = visibleCount === 0;
 
-          const productName =
-            row.dataset.product || "";
-
-          const matches =
-            searchTerm === "" ||
-            productName.includes(searchTerm);
-
-          row.style.display =
-            matches ? "" : "none";
-
-          if (matches) {
-            categoryHasMatch = true;
+          const countEl = section.querySelector("[data-category-count]");
+          if (countEl) {
+            countEl.textContent = searchTerm
+              ? `${visibleCount} ${visibleCount === 1 ? "product" : "products"}`
+              : `${section.querySelectorAll(".product-card").length} ${section.querySelectorAll(".product-card").length === 1 ? "product" : "products"}`;
           }
         });
-
-        // Check the final category after the loop.
-        if (activeCategory) {
-          activeCategory.style.display =
-            categoryHasMatch ? "" : "none";
-        }
       });
     }
   })
@@ -838,11 +866,28 @@ fetch("products.csv", { cache: "no-store" })
   .catch(error => {
     console.error("Catalogue error:", error);
 
-    document.querySelector("#catalogue tbody").innerHTML = `
-      <tr>
-        <td colspan="5">
+    const catalogueGrid = document.querySelector("#catalogueGrid");
+    if (catalogueGrid) {
+      catalogueGrid.innerHTML = `
+        <div class="catalogue-error">
           Unable to load the catalogue.
-        </td>
-      </tr>
-    `;
+        </div>
+      `;
+    }
   });
+
+// Keep the floating Categories button attached directly to <body> so
+// its fixed position is always relative to the viewport, never the
+// catalogue layout. This prevents it from drifting/disappearing when
+// the page is scrolled or when content changes.
+(function keepMobileCategoryButtonInViewport(){
+  const btn = document.getElementById("mobileCategoryBtn");
+  if (btn && btn.parentElement !== document.body) {
+    document.body.appendChild(btn);
+  }
+
+  // Start every page at the left edge. This also clears any horizontal
+  // position left behind by an earlier version of the catalogue.
+  document.documentElement.scrollLeft = 0;
+  document.body.scrollLeft = 0;
+})();
