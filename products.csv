@@ -31,7 +31,7 @@ Urid dal (White Split),Thulasi,1 Kg,5.05,,white-urid.jpg
 Black Urid Dal,Thulasi,1 Kg,5.2,,black-urid.jpg
 Toor dal,Thulasi,1 Kg,5.05,Out of Stock,toor-dal.jpg
 Toor dal (5Kg),Thulasi,5 Kg,22.35,,toor-dal.jpg
-Moong Dal,Thulasi,1 Kg,5.05,,
+Moong Dal,Thulasi,1 Kg,5.05,,moong-dal.jpg
 Chana dal,Thulasi,1 Kg,4.6,,chana-dal.jpg
 Chickpeas,Thulasi,1 Kg,4.35,,chickpeas.jpg
 Horse Gram (Kollu/Ulavalu/Kulthi/Muthira/Hurali Kalu),Thulasi,1 Kg,6.65,,horsegram.jpg
@@ -41,7 +41,7 @@ Puttu Flour,Thulasi,1 Kg,3.95,,puttu-flour.jpg
 Red Rice Puttu Flour Mix,Malabar Delightz,500g,3.6,,red-puttu.jpg
 Split Roasted Gram (Putnalu/Dalia/Hurigadale),Thulasi,1 Kg,5.6,,roasted-gram.jpg
 Ragi/Finger Millet Flour,Thulasi,1 Kg,3.9,,ragi-flour.jpg
-Bansi Wheat Rava,Thulasi,1 Kg,4.99,Free with Double Roasted Semolina,
+Bansi Wheat Rava,Thulasi,1 Kg,4.99,Free with Double Roasted Semolina,wheat-rava.jpg
 Peanuts,Thulasi,1 Kg,8.99,,peanuts.jpg
 Kidney beans (Rajma),Thulasi,1 Kg,6.8,,dark-kidney.jpg
 Chakki atta,Grewal,5 Kg,12.2,,grewal-atta.jpg
@@ -68,7 +68,7 @@ Cumin seeds,Thulasi,500g,5.35,,cumin-seeds.jpg
 Fenugreek Powder,Thulasi,200g,3.05,,fenugreek-powder.jpg
 Fennel Powder,Thulasi,200g,3.05,,fennel-powder.jpg
 Cumin Powder,Thulasi,200g,3.05,,cumin-powder.jpg
-Jaggery Round Balls (Gur Ki Bhel/Nadan Vellam),Thulasi,500g,3.05,,
+Jaggery Round Balls (Gur Ki Bhel/Nadan Vellam),Thulasi,500g,3.05,,jaggery-balls.jpg
 Powdered Jaggery (Gur Powder),Thulasi,500g,3.35,,jaggery-powder.jpg
 Chilli Powder,Thulasi,500g,5.35,,chilli-powder.jpg
 Long chilli,Thulasi,200g,4.6,,long-chilli.jpg
@@ -76,11 +76,11 @@ Round Chilli,Thulasi,200g,5.6,,round-chilli.jpg
 Kashmiri Chilli,Thulasi,200g,4.6,,kashmiri-chilli.jpg
 Green Cardamom,Thulasi,50g,6.2,,cardamom.jpg
 Cloves,Thulasi,50g,3.35,,cloves.jpg
-Star Aniseed (Badiyan),Saurbhi,100g,4.25,,
+Star Aniseed (Badiyan),Saurbhi,100g,4.25,,star-anise.jpg
 Bay leaves,Thulasi,50g,3.35,,bayleaf.jpg
 Sabudana small (Sago/Chowwary/Sabakki),Bansari,454g,2.25,,
 Salt,TATA,1Kg,1.99,,tata-salt.jpg
-Rock salt,Thulasi,1Kg,2.99,,
+Rock salt,Thulasi,1Kg,2.99,,rock-salt.jpg
 Mustard seeds,Viya,200g,1.65,,
 Mustard seeds,Saurbhi,200g,1.65,,Saurbhi-mustardseeds.jpg
 White Poppy seeds (Gasagasalu/Khas Khas),Viya,200g,6.65,,viya-poppy.jpg
@@ -102,7 +102,7 @@ MASALA POWDERS,,,,,
 Fish Fry Masala,Thulasi,165g,3.6,Buy 1 Get 1 Free,fish-masala.jpg
 Mutton Masala,Thulasi,165g,3.6,Buy 1 Get 1 Free,mutton-masala.jpg
 Chicken Masala,Thulasi,165g,3.6,Buy 1 Get 1 Free,chicken-masala.jpg
-Chicken 65 Masala,Thulasi,165g,3.6,Buy 1 Get 1 Free,
+Chicken 65 Masala,Thulasi,165g,3.6,Buy 1 Get 1 Free,chick65-masala.jpg
 Sambar Powder,Thulasi,165g,3.6,Buy 1 Get 1 Free,sambar-powder.jpg
 Rasam Powder,Thulasi,165g,3.6,Buy 1 Get 1 Free,rasam-powder.jpg
 Idly Chilli Powder (Karam Podi),Thulasi,165g,3.6,Buy 1 Get 1 Free,idli-chilli-powder.jpg
@@ -112,7 +112,7 @@ Veg Omelette Mix,Thulasi,160g,3.6,Buy 1 Get 1 Free,omlette-masala.jpg
 Parotta Salna Mix,Thulasi,100g,3.6,Buy 1 Get 1 Free,salna-masala.jpg
 Hyderabadi Dum Biryani Masala,Thulasi,165g,3.6,Buy 1 Get 1 Free,biryani-masala.jpg
 Curry Leaf Powder,Thulasi,165g,3.6,Buy 1 Get 1 Free,curryleaf-powder.jpg
-Dal Powder,Thulasi,165g,3.6,Buy 1 Get 1 Free,
+Dal Powder,Thulasi,165g,3.6,Buy 1 Get 1 Free,Dhall-powder.jpg
 ,,,,,
 VERMICELLI,,,,,
 Ragi Vermicelli,Thulasi,180g,3.7,Get 1 Rice Vermicelli Free with this,ragi-vermicelli.jpg
@@ -124,7 +124,7 @@ Kumbakonam Filter Coffee,,500g,12.75,,kfc.jpg
 Instant coffee powder,Malabar Delightz,175g,6.1,,instant-coffee.jpg
 Original Instant Coffee,BRU,200g,12.75,,bru-coffee.jpg
 Masala tea,Malabar Delightz,200g,4.85,,masala-tea.jpg
-Premium Tea,Wagh Bakri,908g,16,,
+Premium Tea,Wagh Bakri,908g,16,,wagh-bakri.jpg
 Cotton Seed Milk Mix (Paruthi Paal),Malabar Delightz,200g,5.99,Mix n Match - Buy 1 Get 1 Free,cotton-seed.jpg
 Palm Candy Turmeric Pepper Milk,Malabar Delightz,200g,5.99,Mix n Match - Buy 1 Get 1 Free,turmeric-pepper.jpg
 Badam Drink Mix,Malabar Delightz,200g,5.99,Mix n Match - Buy 1 Get 1 Free,badam-drink.jpg
@@ -145,6 +145,6 @@ Adhirasam (Ariselu/Anarsa/Kajjaya),Grand Chettinadu,180g,5.5,,adhirasam.jpg
 Sugar Balls (Thaen mittai/Mitha Gola/Jeenu Mittai),Grand Chettinadu,90g,5.5,,
 Elaneer Halwa (Tender Coconut Sweet/Nariyal Halwa),Grand Chettinadu,150g,5.5,,elaneer-halwa.jpg
 Tirunelveli Halwa,Grand Chettinadu,150g,5.6,Out of Stock,thirunelveli-halwa.jpg
-Peanut Coco bites,Thulasi,150g,3.6,,
+Peanut Coco bites,Thulasi,150g,3.6,,coco-bites.jpg
 Black sesame Balls (Nalla Nuvvula Laddu/Kale Til Ke Laddu),Thulasi,150g,3.85,,sesame-balls.jpg
 Peanut Candy (Palli Patti/Moongphali Chikki/Shenga Chikki),Thulasi,150g,4.6,Out of Stock,peanut-candy.jpg
