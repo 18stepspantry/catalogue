@@ -200,6 +200,11 @@ fetch("products.csv", { cache: "no-store" })
       currentBrand = brand;
 
       const isOutOfStock = offer.toLowerCase() === "out of stock";
+
+      // Out-of-stock products stay in products.csv for stock tracking,
+      // but are omitted from the customer-facing catalogue.
+      if (isOutOfStock) return;
+
       const price = formatPrice(priceRaw);
       const priceValue = isNaN(parseFloat(priceRaw)) ? 0 : parseFloat(priceRaw);
 
