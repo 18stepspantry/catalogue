@@ -107,6 +107,36 @@ fetch("products.csv", { cache: "no-store" })
       return `$${num.toFixed(2)}`;
     }
 
+    // Parse promo end dates strictly as dd/mm/yyyy. The promotion remains
+    // active through the whole end date in the visitor's local time.
+    function parsePromoEndDate(value) {
+      const match = String(value || "").trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!match) return null;
+
+      const day = Number(match[1]);
+      const month = Number(match[2]);
+      const year = Number(match[3]);
+      const date = new Date(year, month - 1, day);
+
+      if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+      ) return null;
+
+      return date;
+    }
+
+    function isPromoDateActive(endDateText) {
+      const endDate = parsePromoEndDate(endDateText);
+      if (!endDate) return false;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+      return today.getTime() <= endDate.getTime();
+    }
+
     function placeholderImage() {
       return `
         <div class="product-image-placeholder" aria-label="Image coming soon">
@@ -133,6 +163,9 @@ fetch("products.csv", { cache: "no-store" })
       // Column F contains only the image filename, e.g. black-rice.jpg.
       // Images are stored under images/products/<category-folder>/.
       const imageFile = (columns[5] || "").trim();
+      // Optional columns G and H: promotional price and promo end date (dd/mm/yyyy).
+      const promoPriceRaw = (columns[6] || "").trim();
+      const promoEndDate = (columns[7] || "").trim();
 
       const productLower = product.toLowerCase();
 
@@ -205,8 +238,22 @@ fetch("products.csv", { cache: "no-store" })
       // but are omitted from the customer-facing catalogue.
       if (isOutOfStock) return;
 
-      const price = formatPrice(priceRaw);
-      const priceValue = isNaN(parseFloat(priceRaw)) ? 0 : parseFloat(priceRaw);
+      const regularPriceValue = parseFloat(priceRaw);
+      const promoPriceValue = parseFloat(promoPriceRaw);
+      const hasValidPromoPrice = promoPriceRaw !== "" && Number.isFinite(promoPriceValue) && promoPriceValue >= 0;
+      const promoIsActive =
+        hasValidPromoPrice &&
+        Number.isFinite(regularPriceValue) &&
+        promoPriceValue < regularPriceValue &&
+        isPromoDateActive(promoEndDate);
+
+      // The active promotional price is also used by the quantity stepper,
+      // order summary, total and submitted order.
+      const priceValue = promoIsActive ? promoPriceValue : (Number.isFinite(regularPriceValue) ? regularPriceValue : 0);
+      const price = formatPrice(priceValue);
+      const priceHTML = promoIsActive
+        ? `<span class="price-regular">${formatPrice(regularPriceValue)}</span><strong class="price-current">${formatPrice(promoPriceValue)}</strong><span class="promo-price-label">SPECIAL</span>`
+        : `<strong class="price-current">${formatPrice(regularPriceValue) || ""}</strong>`;
 
       let badge = "";
       if (isOutOfStock) {
@@ -280,7 +327,7 @@ fetch("products.csv", { cache: "no-store" })
             ${packSize ? `<p class="product-card-pack">${escapeHTML(packSize)}</p>` : ""}
 
             <div class="product-card-bottom">
-              <strong class="product-card-price">${price !== null ? price : ""}</strong>
+              <div class="product-card-price${promoIsActive ? " is-promo" : ""}">${priceHTML}</div>
               ${stepper}
             </div>
           </div>
